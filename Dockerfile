@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install mbstring bcmath pcntl zip
 
 # Install MongoDB PHP extension
-RUN pecl install mongodb \
+RUN pecl install mongodb-1.21.5 \
     && docker-php-ext-enable mongodb
 
 # Install Composer
