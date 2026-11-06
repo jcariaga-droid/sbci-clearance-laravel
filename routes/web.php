@@ -1,6 +1,8 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClearanceController;
 use App\Http\Controllers\StaffClearanceController;
@@ -53,23 +55,19 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 // AUTHENTICATED USERS
 Route::middleware('auth')->group(function () {
 
-    // STUDENT DASHBOARD - EMAIL VERIFIED
     Route::get('/dashboard', [AuthController::class, 'dashboard'])
         ->middleware('verified.email')
         ->name('dashboard');
 
-    // LOGOUT
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
 
-    // CHANGE PASSWORD
     Route::get('/change-password', [PasswordController::class, 'edit'])
         ->name('password.edit');
 
     Route::put('/change-password', [PasswordController::class, 'update'])
         ->name('password.update');
 
-    // STUDENT CLEARANCE - EMAIL VERIFIED
     Route::middleware('verified.email')->group(function () {
 
         Route::get('/clearance', [ClearanceController::class, 'index'])
@@ -79,7 +77,6 @@ Route::middleware('auth')->group(function () {
             ->name('clearance.store');
     });
 
-    // STAFF AND ADMIN CLEARANCE MANAGEMENT
     Route::middleware('role:staff,admin')->group(function () {
 
         Route::get('/staff/clearances', [StaffClearanceController::class, 'index'])
@@ -89,7 +86,6 @@ Route::middleware('auth')->group(function () {
             ->name('staff.clearances.update');
     });
 
-    // ADMIN ONLY
     Route::middleware('role:admin')->group(function () {
 
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
@@ -113,4 +109,15 @@ Route::middleware('auth')->group(function () {
         Route::patch('/admin/users/{id}/role', [AdminUserController::class, 'updateRole'])
             ->name('admin.users.updateRole');
     });
+});
+
+// TEMPORARY SESSION TEST
+Route::get('/test-session', function (Request $request) {
+
+    $request->session()->put('test_value', 'SBCI_SESSION_WORKING');
+
+    return response()->json([
+        'session_id' => $request->session()->getId(),
+        'session_value' => $request->session()->get('test_value'),
+    ]);
 });
