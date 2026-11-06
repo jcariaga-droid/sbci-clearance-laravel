@@ -111,13 +111,16 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// TEMPORARY SESSION TEST
+// TEMPORARY SESSION DIAGNOSTIC
 Route::get('/test-session', function (Request $request) {
 
     $request->session()->put('test_value', 'SBCI_SESSION_WORKING');
 
     return response()->json([
+        'session_driver' => config('session.driver'),
+        'session_started' => $request->hasSession(),
         'session_id' => $request->session()->getId(),
-        'session_value' => $request->session()->get('test_value'),
+        'session_cookie_name' => config('session.cookie'),
+        'session_secure' => config('session.secure'),
     ]);
 });
