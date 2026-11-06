@@ -9,9 +9,9 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
 
-    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+    'expire_on_close' => false,
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    'encrypt' => false,
 
     'files' => storage_path('framework/sessions'),
 
@@ -23,21 +23,18 @@ return [
 
     'lottery' => [2, 100],
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-session'
-    ),
+    'cookie' => 'sbci-clearance-session',
 
-    'path' => env('SESSION_PATH', '/'),
+    'path' => '/',
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => null,
 
-    'secure' => env('SESSION_SECURE_COOKIE', true),
+    'secure' => true,
 
-    'http_only' => env('SESSION_HTTP_ONLY', true),
+    'http_only' => true,
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    'same_site' => 'lax',
 
-    'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
+    'partitioned' => false,
 
 ];
