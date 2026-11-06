@@ -27,9 +27,9 @@ return [
 
     'path' => '/',
 
-    'domain' => null,
+    'domain' => env('SESSION_DOMAIN'),
 
-    'secure' => true,
+    'secure' => env('SESSION_SECURE_COOKIE', true),
 
     'http_only' => true,
 
