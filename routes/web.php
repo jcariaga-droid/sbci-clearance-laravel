@@ -1,8 +1,6 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClearanceController;
 use App\Http\Controllers\StaffClearanceController;
@@ -105,31 +103,4 @@ Route::middleware('auth')->group(function () {
         Route::patch('/admin/users/{id}/role', [AdminUserController::class, 'updateRole'])
             ->name('admin.users.updateRole');
     });
-});
-
-// TEMPORARY SESSION COOKIE DIAGNOSTIC
-Route::get('/test-session', function (Request $request) {
-
-    $sessionId = $request->session()->getId();
-
-    $request->session()->put('test_value', 'SBCI_SESSION_WORKING');
-
-    return response()->json([
-        'session_driver' => config('session.driver'),
-        'session_started' => $request->hasSession(),
-        'session_id' => $sessionId,
-        'session_value' => $request->session()->get('test_value'),
-        'session_cookie_name' => config('session.cookie'),
-        'session_secure' => config('session.secure'),
-    ])->withCookie(cookie(
-        config('session.cookie'),
-        $sessionId,
-        120,
-        '/',
-        null,
-        true,
-        true,
-        false,
-        'lax'
-    ));
 });
