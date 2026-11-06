@@ -1,3 +1,4 @@
+
 FROM php:8.2-apache
 
 # Install system dependencies
@@ -41,8 +42,16 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Install Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+# Install Laravel dependencies with retry
+RUN for i in 1 2 3 4 5; do \
+    if COMPOSER_MAX_PARALLEL_HTTP=1 COMPOSER_PROCESS_TIMEOUT=600 composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress; then \
+        exit 0; \
+    fi; \
+    echo "Composer installation failed. Retrying ($i/5)..."; \
+    sleep 10; \
+    done; \
+    echo "Composer installation failed after 5 attempts."; \
+    exit 1
 
 # Build frontend assets
 RUN npm install && npm run build
