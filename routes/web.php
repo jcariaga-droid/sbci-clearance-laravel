@@ -39,7 +39,6 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 // EMAIL VERIFICATION
 Route::middleware('auth')->group(function () {
-
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
         ->name('verification.notice');
 
@@ -69,7 +68,6 @@ Route::middleware('auth')->group(function () {
         ->name('password.update');
 
     Route::middleware('verified.email')->group(function () {
-
         Route::get('/clearance', [ClearanceController::class, 'index'])
             ->name('clearance.index');
 
@@ -78,7 +76,6 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:staff,admin')->group(function () {
-
         Route::get('/staff/clearances', [StaffClearanceController::class, 'index'])
             ->name('staff.clearances');
 
@@ -87,7 +84,6 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
-
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
             ->name('admin.dashboard');
 
@@ -111,16 +107,29 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// TEMPORARY SESSION DIAGNOSTIC
+// TEMPORARY SESSION COOKIE DIAGNOSTIC
 Route::get('/test-session', function (Request $request) {
+
+    $sessionId = $request->session()->getId();
 
     $request->session()->put('test_value', 'SBCI_SESSION_WORKING');
 
     return response()->json([
         'session_driver' => config('session.driver'),
         'session_started' => $request->hasSession(),
-        'session_id' => $request->session()->getId(),
+        'session_id' => $sessionId,
+        'session_value' => $request->session()->get('test_value'),
         'session_cookie_name' => config('session.cookie'),
         'session_secure' => config('session.secure'),
-    ]);
+    ])->withCookie(cookie(
+        config('session.cookie'),
+        $sessionId,
+        120,
+        '/',
+        null,
+        true,
+        true,
+        false,
+        'lax'
+    ));
 });
