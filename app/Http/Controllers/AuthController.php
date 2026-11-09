@@ -9,27 +9,34 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function showLogin(Request $request)
-    {
-        $sessionId = $request->session()->getId();
+{
+    Log::info('SBCI LOGIN DIAGNOSTIC', [
+        'session_driver' => config('session.driver'),
+        'session_cookie' => config('session.cookie'),
+        'session_id_present' => filled($request->session()->getId()),
+    ]);
 
-        return response()
-            ->view('auth.login')
-            ->withCookie(cookie(
-                config('session.cookie'),
-                $sessionId,
-                config('session.lifetime'),
-                config('session.path'),
-                config('session.domain'),
-                config('session.secure'),
-                config('session.http_only'),
-                false,
-                config('session.same_site')
-            ));
-    }
+    $sessionId = $request->session()->getId();
+
+    return response()
+        ->view('auth.login')
+        ->withCookie(cookie(
+            config('session.cookie'),
+            $sessionId,
+            config('session.lifetime'),
+            config('session.path'),
+            config('session.domain'),
+            config('session.secure'),
+            config('session.http_only'),
+            false,
+            config('session.same_site')
+        ));
+}
 
     public function showRegister()
     {
