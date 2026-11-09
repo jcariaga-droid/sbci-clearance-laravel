@@ -23,7 +23,7 @@ class AuthController extends Controller
 
     $sessionId = $request->session()->getId();
 
-    return response()
+    $response = response()
         ->view('auth.login')
         ->withCookie(cookie(
             config('session.cookie'),
@@ -36,6 +36,15 @@ class AuthController extends Controller
             false,
             config('session.same_site')
         ));
+
+    Log::info('SBCI RESPONSE COOKIE DIAGNOSTIC', [
+        'cookie_names' => array_map(
+            fn ($cookie) => $cookie->getName(),
+            $response->headers->getCookies()
+        ),
+    ]);
+
+    return $response;
 }
 
     public function showRegister()
