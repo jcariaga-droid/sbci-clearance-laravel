@@ -17,4 +17,20 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
+register_shutdown_function(function (): void {
+    $headers = array_map(function ($header) {
+        [$name, $value] = array_pad(explode(':', $header, 2), 2, '');
+
+        if (strtolower(trim($name)) === 'set-cookie') {
+            $cookieName = trim(explode('=', trim($value), 2)[0]);
+
+            return 'Set-Cookie: ' . $cookieName . '=[redacted]';
+        }
+
+        return trim($name);
+    }, headers_list());
+
+    error_log('SBCI PHP OUTGOING HEADERS ' . json_encode($headers));
+});
+
 $app->handleRequest(Request::capture());
