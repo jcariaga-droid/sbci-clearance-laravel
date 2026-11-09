@@ -16,8 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust Render proxy for HTTPS detection
         $middleware->trustProxies(at: '*');
 
-        $middleware->append(\App\Http\Middleware\LogFinalResponseCookies::class);
-
         // Custom middleware aliases
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
