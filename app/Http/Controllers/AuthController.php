@@ -12,9 +12,23 @@ use Illuminate\Support\Facades\URL;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(Request $request)
     {
-        return view('auth.login');
+        $sessionId = $request->session()->getId();
+
+        return response()
+            ->view('auth.login')
+            ->withCookie(cookie(
+                config('session.cookie'),
+                $sessionId,
+                config('session.lifetime'),
+                config('session.path'),
+                config('session.domain'),
+                config('session.secure'),
+                config('session.http_only'),
+                false,
+                config('session.same_site')
+            ));
     }
 
     public function showRegister()
