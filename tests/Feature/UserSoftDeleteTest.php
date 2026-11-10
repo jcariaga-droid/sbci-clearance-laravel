@@ -106,6 +106,10 @@ class UserSoftDeleteTest extends TestCase
         $student->student_id = 'S-100';
         $student->program = 'BSCRIM';
         $student->year_level = '1st Year';
+        $studentWithoutProgram = $this->user('fixture-no-program', 'student');
+        $studentWithoutProgram->name = 'Student Without Program';
+        $studentWithoutProgram->program = null;
+        $studentWithoutProgram->year_level = '1st Year';
         $staff = $this->user('fixture-staff', 'staff');
         $staff->name = 'Staff Example';
         $staff->email = 'staff@example.test';
@@ -113,7 +117,7 @@ class UserSoftDeleteTest extends TestCase
         $otherAdmin->name = 'Admin Example';
         $otherAdmin->email = 'admin@example.test';
         $studentList = app(StudentListOrganizer::class)->organize(
-            new Collection([$student]),
+            new Collection([$student, $studentWithoutProgram]),
             null,
             null,
             null
@@ -132,6 +136,7 @@ class UserSoftDeleteTest extends TestCase
             'adminUsers' => new Collection([$otherAdmin]),
             'canDeleteUserIds' => [
                 'fixture-student' => true,
+                'fixture-no-program' => true,
                 'fixture-staff' => true,
                 'fixture-other-admin' => true,
             ],
@@ -143,6 +148,27 @@ class UserSoftDeleteTest extends TestCase
         $this->assertStringContainsString('Year Level', $html);
         $this->assertStringContainsString('Student Example', $html);
         $this->assertStringContainsString('<select name="program" required>', $html);
+        $this->assertStringContainsString('<option value="">All Programs</option>', $html);
+        $this->assertStringContainsString('<option value="missing"', $html);
+        foreach ([
+            'BEEd – GenEd',
+            'BSEd – Math',
+            'BSHM',
+            'BSCA',
+            'BSIT',
+            'BSTM',
+            'BSEntrep',
+            'BSCrim',
+        ] as $course) {
+            $this->assertStringContainsString(
+                '<option value="value:' . base64_encode($course) . '"',
+                $html
+            );
+        }
+        $this->assertStringContainsString(
+            '<option value="value:' . base64_encode('BSCRIM') . '"',
+            $html
+        );
         $this->assertStringContainsString('BEEd – GenEd', $html);
         $this->assertStringContainsString('BSEd – Math', $html);
         $this->assertStringContainsString('BSHM', $html);
