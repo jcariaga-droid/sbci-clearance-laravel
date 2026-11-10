@@ -137,6 +137,34 @@ class ManageUserDeletionAuthorizationTest extends TestCase
         $this->assertUserRemainsActive($target);
     }
 
+    public function test_student_course_selection_is_saved_without_changing_other_fields(): void
+    {
+        $actor = $this->createUser('admin');
+        $student = $this->createUser('student');
+        $student->student_id = 'TEST-'.$this->fixtureMarker;
+        $student->program = 'BSIT';
+        $student->year_level = '2nd Year';
+        $student->save();
+        $course = 'BSEd – Math';
+
+        $response = $this->actingAs($actor)
+            ->from('/admin/users')
+            ->patch(route('admin.users.updateStudent', ['id' => $student->getKey()]), [
+                'name' => $student->name,
+                'student_id' => $student->student_id,
+                'program' => $course,
+                'year_level' => $student->year_level,
+                'email' => $student->email,
+            ]);
+
+        $response->assertRedirect('/admin/users');
+        $updatedStudent = User::query()->findOrFail($student->getKey());
+        $this->assertSame($course, $updatedStudent->program);
+        $this->assertSame('2nd Year', $updatedStudent->year_level);
+        $this->assertSame($student->student_id, $updatedStudent->student_id);
+        $this->assertSame($student->email, $updatedStudent->email);
+    }
+
     private function assertDeletionAllowed(string $actorRole, bool $isMainAdmin, string $targetRole): void
     {
         $actor = $this->createUser($actorRole);

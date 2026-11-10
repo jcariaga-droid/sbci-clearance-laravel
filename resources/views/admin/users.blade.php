@@ -5,6 +5,19 @@
 
 @section('content')
 
+@php
+    $studentCourseOptions = [
+        'BEEd – GenEd',
+        'BSEd – Math',
+        'BSHM',
+        'BSCA',
+        'BSIT',
+        'BSTM',
+        'BSEntrep',
+        'BSCrim',
+    ];
+@endphp
+
 <style>
     .users-container {
         width: 100%;
@@ -438,12 +451,10 @@
 
                 <label>Program</label>
                 <select name="program" required>
-                    <option value="">Select Program</option>
-                    <option value="BSIT">BSIT</option>
-                    <option value="BSBA">BSBA</option>
-                    <option value="BSED">BSED</option>
-                    <option value="BEED">BEED</option>
-                    <option value="Other">Other</option>
+                    <option value="">Select Course</option>
+                    @foreach($studentCourseOptions as $course)
+                        <option value="{{ $course }}">{{ $course }}</option>
+                    @endforeach
                 </select>
 
                 <label>Year Level</label>
@@ -634,8 +645,25 @@
                                         value="{{ $user->student_id ?? '' }}" required>
 
                                     <label>Program</label>
-                                    <input type="text" name="program"
-                                        value="{{ $user->program ?? '' }}" required>
+                                    <select name="program" required>
+                                        @if(filled($user->program) && !in_array($user->program, $studentCourseOptions, true))
+                                            <option value="{{ $user->program }}" selected>
+                                                {{ $user->program }} (existing value)
+                                            </option>
+                                        @else
+                                            <option value="" disabled
+                                                {{ filled($user->program) ? '' : 'selected' }}>
+                                                Select a course
+                                            </option>
+                                        @endif
+
+                                        @foreach($studentCourseOptions as $course)
+                                            <option value="{{ $course }}"
+                                                {{ $user->program === $course ? 'selected' : '' }}>
+                                                {{ $course }}
+                                            </option>
+                                        @endforeach
+                                    </select>
 
                                     <label>Year Level</label>
                                     <select name="year_level" required>

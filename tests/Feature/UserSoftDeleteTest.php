@@ -2,30 +2,21 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Http\Controllers\PasswordController;
+use App\Models\Clearance;
+use App\Models\User;
 use App\Support\StudentListOrganizer;
 use Illuminate\Auth\EloquentUserProvider;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ViewErrorBag;
 use Mockery;
 use Tests\TestCase;
-
-class UserSoftDeleteFixture extends Authenticatable
-{
-    use SoftDeletes;
-
-    protected $table = 'soft_delete_users';
-
-    protected $guarded = [];
-}
 
 class UserSoftDeleteTest extends TestCase
 {
@@ -36,39 +27,71 @@ class UserSoftDeleteTest extends TestCase
 
     public function test_soft_deleting_an_account_keeps_clearance_history_and_hides_account_from_normal_queries(): void
     {
-        Schema::create('soft_delete_users', function ($table): void {
-            $table->increments('id');
-            $table->string('email');
-            $table->string('password')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        $this->assertSame('mongodb', config('database.default'));
+        $this->assertSame('mongodb', config('database.connections.mongodb.driver'));
+        $this->assertSame('sbci_clearance_test', config('database.connections.mongodb.database'));
 
-        Schema::create('soft_delete_clearances', function ($table): void {
-            $table->increments('id');
-            $table->unsignedInteger('user_id');
-            $table->string('status');
-        });
+        $connection = app('db')->connection('mongodb');
 
-        $user = UserSoftDeleteFixture::create(['email' => 'fixture@example.test']);
-        $clearanceId = Schema::getConnection()->table('soft_delete_clearances')->insertGetId([
-            'user_id' => $user->id,
-            'status' => 'Approved',
-        ]);
-        $provider = new EloquentUserProvider(app('hash'), UserSoftDeleteFixture::class);
+        $this->assertSame('sbci_clearance_test', $connection->getDatabaseName());
+        $this->assertNotSame('sbci_clearance', $connection->getDatabaseName());
 
-        $this->assertNotNull($provider->retrieveByCredentials(['email' => $user->email]));
+        $identifier = (string) Str::uuid();
+        $email = 'soft-delete-'.$identifier.'@example.test';
+        $studentId = 'soft-delete-'.$identifier;
+        $user = null;
+        $clearance = null;
 
-        $user->delete();
+        try {
+            $user = new User;
+            $user->name = 'Disposable soft-delete test account';
+            $user->email = $email;
+            $user->password = Str::random(48);
+            $user->role = 'student';
+            $user->student_id = $studentId;
+            $user->setAttribute('integration_test_run_id', $identifier);
+            $user->save();
 
-        $this->assertNull(UserSoftDeleteFixture::find($user->id));
-        $this->assertNotNull(UserSoftDeleteFixture::withTrashed()->find($user->id)->deleted_at);
-        $this->assertNull($provider->retrieveByCredentials(['email' => $user->email]));
-        $this->assertDatabaseHas('soft_delete_clearances', [
-            'id' => $clearanceId,
-            'user_id' => $user->id,
-            'status' => 'Approved',
-        ]);
+            $clearance = new Clearance;
+            $clearance->student_id = $studentId;
+            $clearance->department = 'Soft-delete test '.$identifier;
+            $clearance->status = 'Approved';
+            $clearance->remarks = 'Disposable soft-delete test clearance';
+            $clearance->setAttribute('integration_test_run_id', $identifier);
+            $clearance->save();
+
+            $provider = new EloquentUserProvider(app('hash'), User::class);
+            $this->assertNotNull($provider->retrieveByCredentials(['email' => $email]));
+
+            $user->delete();
+
+            $this->assertNull(User::query()->find($user->getKey()));
+            $deletedUser = User::withTrashed()->find($user->getKey());
+            $this->assertNotNull($deletedUser);
+            $this->assertNotNull($deletedUser->deleted_at);
+            $this->assertNull($provider->retrieveByCredentials(['email' => $email]));
+
+            $retainedClearance = Clearance::query()->find($clearance->getKey());
+            $this->assertNotNull($retainedClearance);
+            $this->assertSame($studentId, $retainedClearance->student_id);
+            $this->assertSame('Approved', $retainedClearance->status);
+        } finally {
+            try {
+                $clearanceCollection = $connection->getCollection((new Clearance)->getTable());
+                $clearanceCollection->deleteMany(['integration_test_run_id' => $identifier]);
+                $this->assertSame(
+                    0,
+                    $clearanceCollection->countDocuments(['integration_test_run_id' => $identifier])
+                );
+            } finally {
+                $userCollection = $connection->getCollection((new User)->getTable());
+                $userCollection->deleteMany(['integration_test_run_id' => $identifier]);
+                $this->assertSame(
+                    0,
+                    $userCollection->countDocuments(['integration_test_run_id' => $identifier])
+                );
+            }
+        }
     }
 
     public function test_manage_users_blade_renders_student_filters_and_separate_sections(): void
@@ -81,7 +104,7 @@ class UserSoftDeleteTest extends TestCase
         $student->name = 'Student Example';
         $student->email = 'student@example.test';
         $student->student_id = 'S-100';
-        $student->program = 'BSIT';
+        $student->program = 'BSCRIM';
         $student->year_level = '1st Year';
         $staff = $this->user('fixture-staff', 'staff');
         $staff->name = 'Staff Example';
@@ -119,6 +142,17 @@ class UserSoftDeleteTest extends TestCase
         $this->assertStringContainsString('Course / Program', $html);
         $this->assertStringContainsString('Year Level', $html);
         $this->assertStringContainsString('Student Example', $html);
+        $this->assertStringContainsString('<select name="program" required>', $html);
+        $this->assertStringContainsString('BEEd – GenEd', $html);
+        $this->assertStringContainsString('BSEd – Math', $html);
+        $this->assertStringContainsString('BSHM', $html);
+        $this->assertStringContainsString('BSCA', $html);
+        $this->assertStringContainsString('BSIT', $html);
+        $this->assertStringContainsString('BSTM', $html);
+        $this->assertStringContainsString('BSEntrep', $html);
+        $this->assertStringContainsString('BSCrim', $html);
+        $this->assertStringContainsString('<option value="BSCRIM" selected>', $html);
+        $this->assertStringContainsString('BSCRIM (existing value)', $html);
         $this->assertStringContainsString('Staff Accounts', $html);
         $this->assertStringContainsString('Staff Example', $html);
         $this->assertStringContainsString('Admin Accounts', $html);
