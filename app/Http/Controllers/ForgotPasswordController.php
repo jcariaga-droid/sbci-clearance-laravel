@@ -31,6 +31,7 @@ class ForgotPasswordController extends Controller
 
         $user = $this->users()->findOne([
             'email' => $request->email,
+            'deleted_at' => null,
         ]);
 
         if (!$user) {
@@ -42,7 +43,10 @@ class ForgotPasswordController extends Controller
         $token = Str::random(64);
 
         $this->users()->updateOne(
-            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'deleted_at' => null,
+            ],
             ['$set' => [
                 'reset_token' => Hash::make($token),
                 'reset_token_expires' => time() + 3600,
@@ -91,6 +95,7 @@ class ForgotPasswordController extends Controller
 
         $user = $this->users()->findOne([
             'email' => $request->email,
+            'deleted_at' => null,
         ]);
 
         if (
@@ -106,7 +111,10 @@ class ForgotPasswordController extends Controller
         }
 
         $this->users()->updateOne(
-            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'deleted_at' => null,
+            ],
             [
                 '$set' => [
                     'password' => Hash::make($request->password),

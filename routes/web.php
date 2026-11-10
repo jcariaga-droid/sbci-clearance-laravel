@@ -102,5 +102,8 @@ Route::middleware('auth')->group(function () {
 
         Route::patch('/admin/users/{id}/role', [AdminUserController::class, 'updateRole'])
             ->name('admin.users.updateRole');
+
+        Route::delete('/admin/users/{id}', [AdminUserController::class, 'destroy'])
+            ->name('admin.users.destroy');
     });
 });

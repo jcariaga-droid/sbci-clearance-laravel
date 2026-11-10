@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Policies\UserManagementPolicy;
+use App\Support\StudentListOrganizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,11 +14,49 @@ use Illuminate\Validation\Rule;
 
 class AdminUserController extends Controller
 {
-    public function index()
+    public function index(Request $request, StudentListOrganizer $organizer, UserManagementPolicy $userPolicy)
     {
         $users = User::orderBy('name')->get();
+        $filters = $request->validate([
+            'search' => 'nullable|string|max:100',
+            'program' => 'nullable|string|max:512',
+            'year_level' => 'nullable|string|max:512',
+        ]);
+        $students = $users->where('role', 'student')->values();
+        $staffUsers = $users->where('role', 'staff')->values();
+        $adminUsers = $users->where('role', 'admin')->values();
+        $studentList = $organizer->organize(
+            $students,
+            $filters['search'] ?? null,
+            $filters['program'] ?? null,
+            $filters['year_level'] ?? null
+        );
+        $displayedUsers = $staffUsers->merge($adminUsers);
 
-        return view('admin.users', compact('users'));
+        foreach ($studentList['groups'] as $group) {
+            foreach ($group['years'] as $yearGroup) {
+                $displayedUsers = $displayedUsers->merge($yearGroup['students']);
+            }
+        }
+
+        $canDeleteUserIds = $displayedUsers
+            ->filter(fn (User $user): bool => $userPolicy->canDelete(Auth::user(), $user))
+            ->mapWithKeys(fn (User $user): array => [(string) $user->getKey() => true])
+            ->all();
+
+        return view('admin.users', [
+            'studentsByProgram' => $studentList['groups'],
+            'programOptions' => $studentList['programOptions'],
+            'yearLevelOptions' => $studentList['yearLevelOptions'],
+            'studentCount' => $studentList['studentCount'],
+            'search' => $filters['search'] ?? '',
+            'selectedProgram' => $filters['program'] ?? '',
+            'selectedYearLevel' => $filters['year_level'] ?? '',
+            'staffUsers' => $staffUsers,
+            'adminUsers' => $adminUsers,
+            'canDeleteUserIds' => $canDeleteUserIds,
+            'isMainAdmin' => Auth::user()->isMainAdmin(),
+        ]);
     }
 
     // SEND STUDENT VERIFICATION EMAIL
@@ -179,16 +219,17 @@ class AdminUserController extends Controller
     }
 
     // UPDATE USER ROLE
-    public function updateRole(Request $request, string $id)
+    public function updateRole(Request $request, string $id, UserManagementPolicy $userPolicy)
     {
         $request->validate([
             'role' => 'required|in:student,staff,admin',
         ]);
 
         $user = User::findOrFail($id);
+        $actor = Auth::user();
 
-        if ((string) $user->_id === (string) Auth::user()->_id) {
-            return back()->with('error', 'You cannot change your own role.');
+        if (!$userPolicy->canChangeRole($actor, $user, $request->role)) {
+            return back()->with('error', 'You are not authorized to change this user role.');
         }
 
         $oldRole = $user->role;
@@ -206,5 +247,16 @@ class AdminUserController extends Controller
         }
 
         return back()->with('success', 'User role updated successfully.');
+    }
+
+    public function destroy(string $id, UserManagementPolicy $userPolicy)
+    {
+        $user = User::findOrFail($id);
+
+        abort_unless($userPolicy->canDelete(Auth::user(), $user), 403);
+
+        $user->delete();
+
+        return back()->with('success', 'User account deactivated successfully.');
     }
 }

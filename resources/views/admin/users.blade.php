@@ -201,6 +201,52 @@
         flex-wrap: wrap;
     }
 
+    .filter-controls {
+        display: flex;
+        align-items: end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .filter-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .filter-controls input,
+    .filter-controls select {
+        min-width: 170px;
+        padding: 9px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        background: white;
+        font-size: 13px;
+    }
+
+    .program-group-row td,
+    .year-group-row td {
+        font-weight: 700;
+        color: #1e293b;
+        background: #eff6ff;
+    }
+
+    .year-group-row td {
+        background: #f8fafc;
+        color: #334155;
+    }
+
+    .danger-btn {
+        background: #b91c1c;
+    }
+
+    .danger-btn:hover {
+        background: #991b1b;
+    }
+
     /* MODAL */
 
     .modal {
@@ -461,6 +507,45 @@
 
     <h2 class="section-title">Student Accounts</h2>
 
+    <div class="users-card">
+        <form method="GET" action="{{ route('admin.users') }}" class="filter-controls">
+            <label>
+                Search name or program
+                <input type="search" name="search" value="{{ $search }}"
+                    placeholder="Search students or programs">
+            </label>
+
+            <label>
+                Course / Program
+                <select name="program">
+                    <option value="">All Programs</option>
+                    @foreach($programOptions as $option)
+                        <option value="{{ $option['value'] }}"
+                            {{ $selectedProgram === $option['value'] ? 'selected' : '' }}>
+                            {{ $option['label'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </label>
+
+            <label>
+                Year Level
+                <select name="year_level">
+                    <option value="">All Year Levels</option>
+                    @foreach($yearLevelOptions as $option)
+                        <option value="{{ $option['value'] }}"
+                            {{ $selectedYearLevel === $option['value'] ? 'selected' : '' }}>
+                            {{ $option['label'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </label>
+
+            <button type="submit" class="btn">Apply Filters</button>
+            <a href="{{ route('admin.users') }}" class="btn close-btn">Clear</a>
+        </form>
+    </div>
+
     <div class="users-card table-wrapper">
         <table class="users-table">
             <thead>
@@ -476,24 +561,56 @@
             </thead>
 
             <tbody>
-                @php $studentCount = 0; @endphp
+                @forelse($studentsByProgram as $programGroup)
+                    <tr class="program-group-row">
+                        <td colspan="7">{{ $programGroup['program'] }}</td>
+                    </tr>
 
-                @foreach($users as $user)
-                    @if(($user->role ?? 'student') === 'student')
-                        @php $studentCount++; @endphp
+                    @foreach($programGroup['years'] as $yearGroup)
+                        <tr class="year-group-row">
+                            <td colspan="7">{{ $yearGroup['level'] }}</td>
+                        </tr>
 
+                        @foreach($yearGroup['students'] as $user)
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->student_id ?? '—' }}</td>
-                            <td>{{ $user->program ?? '—' }}</td>
-                            <td>{{ $user->year_level ?? '—' }}</td>
+                            <td>{{ filled($user->program) ? $user->program : 'Not Set' }}</td>
+                            <td>{{ filled($user->year_level) ? $user->year_level : 'Not Set' }}</td>
                             <td>{{ $user->email }}</td>
                             <td><span class="role-badge student-badge">Student</span></td>
                             <td>
-                                <button type="button" class="btn edit-btn"
-                                    onclick="openModal('editStudent{{ $user->_id }}')">
-                                    Edit
-                                </button>
+                                <div class="staff-actions">
+                                    <button type="button" class="btn edit-btn"
+                                        onclick="openModal('editStudent{{ $user->_id }}')">
+                                        Edit
+                                    </button>
+
+                                    <form method="POST"
+                                        action="{{ route('admin.users.updateRole', $user->_id) }}"
+                                        class="role-form">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="role" required>
+                                            <option value="student" selected>Student</option>
+                                            <option value="staff">Staff</option>
+                                            @if($isMainAdmin)
+                                                <option value="admin">Admin</option>
+                                            @endif
+                                        </select>
+                                        <button type="submit" class="btn">Change Role</button>
+                                    </form>
+
+                                    @if(isset($canDeleteUserIds[(string) $user->getKey()]))
+                                        <form method="POST"
+                                            action="{{ route('admin.users.destroy', $user->_id) }}"
+                                            onsubmit="return confirm('Deactivate this student account?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn danger-btn">Delete</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
 
@@ -560,16 +677,16 @@
                                 </form>
                             </div>
                         </div>
-                    @endif
-                @endforeach
 
-                @if($studentCount === 0)
+                        @endforeach
+                    @endforeach
+                @empty
                     <tr>
                         <td colspan="7" class="empty-row">
-                            No student accounts found.
+                            No student accounts match these filters.
                         </td>
                     </tr>
-                @endif
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -590,12 +707,7 @@
             </thead>
 
             <tbody>
-                @php $staffCount = 0; @endphp
-
-                @foreach($users as $user)
-                    @if(($user->role ?? '') === 'staff')
-                        @php $staffCount++; @endphp
-
+                @forelse($staffUsers as $user)
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
@@ -617,8 +729,11 @@
                                         @method('PATCH')
 
                                         <select name="role" required>
+                                            <option value="student">Student</option>
                                             <option value="staff" selected>Staff</option>
-                                            <option value="admin">Admin</option>
+                                            @if($isMainAdmin)
+                                                <option value="admin">Admin</option>
+                                            @endif
                                         </select>
 
                                         <button type="submit" class="btn">
@@ -626,6 +741,15 @@
                                         </button>
                                     </form>
 
+                                    @if(isset($canDeleteUserIds[(string) $user->getKey()]))
+                                        <form method="POST"
+                                            action="{{ route('admin.users.destroy', $user->_id) }}"
+                                            onsubmit="return confirm('Deactivate this staff account?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn danger-btn">Delete</button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -662,16 +786,13 @@
                                 </form>
                             </div>
                         </div>
-                    @endif
-                @endforeach
-
-                @if($staffCount === 0)
+                @empty
                     <tr>
                         <td colspan="4" class="empty-row">
                             No staff accounts found.
                         </td>
                     </tr>
-                @endif
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -687,31 +808,52 @@
                     <th>Full Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
             <tbody>
-                @php $adminCount = 0; @endphp
-
-                @foreach($users as $user)
-                    @if(($user->role ?? '') === 'admin')
-                        @php $adminCount++; @endphp
-
+                @forelse($adminUsers as $user)
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td><span class="role-badge admin-badge">Admin</span></td>
-                        </tr>
-                    @endif
-                @endforeach
+                            <td>
+                                <div class="staff-actions">
+                                    @if($isMainAdmin && (string) $user->getKey() !== (string) auth()->user()->getKey())
+                                        <form method="POST"
+                                            action="{{ route('admin.users.updateRole', $user->_id) }}"
+                                            class="role-form">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="role" required>
+                                                <option value="admin" selected>Admin</option>
+                                                <option value="student">Student</option>
+                                                <option value="staff">Staff</option>
+                                            </select>
+                                            <button type="submit" class="btn">Change Role</button>
+                                        </form>
+                                    @endif
 
-                @if($adminCount === 0)
+                                    @if(isset($canDeleteUserIds[(string) $user->getKey()]))
+                                        <form method="POST"
+                                            action="{{ route('admin.users.destroy', $user->_id) }}"
+                                            onsubmit="return confirm('Deactivate this admin account?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn danger-btn">Delete</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                @empty
                     <tr>
-                        <td colspan="3" class="empty-row">
+                        <td colspan="4" class="empty-row">
                             No admin accounts found.
                         </td>
                     </tr>
-                @endif
+                @endforelse
             </tbody>
         </table>
     </div>
