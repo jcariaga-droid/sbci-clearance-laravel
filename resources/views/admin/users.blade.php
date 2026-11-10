@@ -530,11 +530,20 @@
                 Course / Program
                 <select name="program">
                     <option value="">All Programs</option>
-                    @foreach($programOptions as $option)
-                        <option value="{{ $option['value'] }}"
-                            {{ $selectedProgram === $option['value'] ? 'selected' : '' }}>
-                            {{ $option['label'] }}
+                    @foreach($studentCourseOptions as $course)
+                        <option value="{{ 'value:' . base64_encode($course) }}"
+                            {{ $selectedProgram === 'value:' . base64_encode($course) ? 'selected' : '' }}>
+                            {{ $course }}
                         </option>
+                    @endforeach
+
+                    @foreach($programOptions as $option)
+                        @if(!in_array($option['label'], $studentCourseOptions, true))
+                            <option value="{{ $option['value'] }}"
+                                {{ $selectedProgram === $option['value'] ? 'selected' : '' }}>
+                                {{ $option['label'] }}
+                            </option>
+                        @endif
                     @endforeach
                 </select>
             </label>
