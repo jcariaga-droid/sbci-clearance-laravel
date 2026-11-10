@@ -38,7 +38,10 @@ class PasswordController extends Controller
             ->selectDatabase('sbci_clearance')
             ->selectCollection('users')
             ->updateOne(
-                ['email' => $user->email],
+                [
+                    '_id' => $user->getKey(),
+                    'deleted_at' => null,
+                ],
                 [
                     '$set' => [
                         'password' => Hash::make($request->password),
