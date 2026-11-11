@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -27,9 +28,20 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email',
             'password' => 'required|string|min:8|confirmed',
         ]);
+
+        // Check only active accounts.
+        // Soft-deleted accounts are excluded from this check.
+        $existingUser = User::where('email', $request->email)
+            ->first();
+
+        if ($existingUser) {
+            throw ValidationException::withMessages([
+                'email' => 'The email has already been taken.',
+            ]);
+        }
 
         $user = User::create([
             'name' => $request->name,
