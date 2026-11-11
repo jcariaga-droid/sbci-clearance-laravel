@@ -22,19 +22,25 @@ class ClearanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'department' => 'required|string|max:100',
+            'department' => [
+                'required',
+                'string',
+                'in:DEAM PROGRAM,LIBRARY,PROPERTY CUSTODIAN,ACCOUNTING,REGISTRAR,OSAS',
+            ],
         ]);
 
         $user = Auth::user();
 
-        // Prevent duplicate pending/active requests for the same department
         $existing = Clearance::where('student_id', $user->email)
             ->where('department', $request->department)
             ->whereIn('status', ['Pending', 'Approved'])
             ->first();
 
         if ($existing) {
-            return back()->with('error', 'You already have a clearance request for this department.');
+            return back()->with(
+                'error',
+                'You already have a clearance request for this department.'
+            );
         }
 
         $clearance = new Clearance();
@@ -44,6 +50,9 @@ class ClearanceController extends Controller
         $clearance->remarks = '';
         $clearance->save();
 
-        return back()->with('success', 'Clearance request submitted successfully.');
+        return back()->with(
+            'success',
+            'Clearance request submitted successfully.'
+        );
     }
 }
