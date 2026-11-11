@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class PasswordController extends Controller
@@ -17,11 +17,11 @@ class PasswordController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user = Auth::user();
+        $user = User::find(Auth::id());
 
         if (!$user) {
             abort(401);
@@ -33,25 +33,11 @@ class PasswordController extends Controller
             ]);
         }
 
-        $result = DB::connection('mongodb')
-            ->getClient()
-            ->selectDatabase('sbci_clearance')
-            ->selectCollection('users')
-            ->updateOne(
-                [
-                    '_id' => $user->getKey(),
-                    'deleted_at' => null,
-                ],
-                [
-                    '$set' => [
-                        'password' => Hash::make($request->password),
-                    ],
-                ]
-            );
+        $user->password = Hash::make($request->password);
 
-        if ($result->getMatchedCount() === 0) {
+        if (!$user->save()) {
             return back()->withErrors([
-                'password' => 'Account not found. Password was not updated.',
+                'password' => 'Unable to update password. Please try again.',
             ]);
         }
 
