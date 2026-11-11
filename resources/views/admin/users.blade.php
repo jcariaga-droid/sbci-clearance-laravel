@@ -19,9 +19,7 @@
 @endphp
 
 <style>
-    .users-container {
-        width: 100%;
-    }
+    .users-container { width: 100%; }
 
     .page-header {
         background: linear-gradient(135deg, #203f91, #142b68);
@@ -32,16 +30,8 @@
         box-shadow: 0 5px 15px rgba(32,63,145,0.12);
     }
 
-    .page-header h2 {
-        margin: 0 0 8px;
-        font-size: 25px;
-    }
-
-    .page-header p {
-        margin: 0;
-        color: #dbeafe;
-        font-size: 14px;
-    }
+    .page-header h2 { margin: 0 0 8px; font-size: 25px; }
+    .page-header p { margin: 0; color: #dbeafe; font-size: 14px; }
 
     .users-card {
         background: white;
@@ -52,22 +42,14 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
 
-    .card-heading {
-        color: #1e293b;
-        font-size: 20px;
-        margin: 0 0 7px;
-    }
+    .card-heading { color: #1e293b; font-size: 20px; margin: 0 0 7px; }
+    .card-description { color: #64748b; font-size: 14px; margin: 0 0 20px; }
 
-    .card-description {
-        color: #64748b;
-        font-size: 14px;
-        margin: 0 0 20px;
-    }
-
-    .create-buttons {
+    .create-buttons, .staff-actions {
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .btn {
@@ -80,28 +62,17 @@
         font-size: 13px;
         font-weight: 600;
         transition: 0.2s;
+        text-decoration: none;
+        display: inline-block;
     }
 
-    .btn:hover {
-        background: #162e70;
-        color: white;
-    }
-
-    .close-btn {
-        background: #64748b;
-    }
-
-    .close-btn:hover {
-        background: #475569;
-    }
-
-    .edit-btn {
-        background: #d97706;
-    }
-
-    .edit-btn:hover {
-        background: #b45309;
-    }
+    .btn:hover { background: #162e70; color: white; }
+    .close-btn { background: #64748b; }
+    .close-btn:hover { background: #475569; }
+    .edit-btn { background: #d97706; }
+    .edit-btn:hover { background: #b45309; }
+    .danger-btn { background: #b91c1c; }
+    .danger-btn:hover { background: #991b1b; }
 
     .users-table {
         width: 100%;
@@ -109,8 +80,7 @@
         border-collapse: collapse;
     }
 
-    .users-table th,
-    .users-table td {
+    .users-table th, .users-table td {
         padding: 14px;
         border-bottom: 1px solid #e5e7eb;
         text-align: left;
@@ -125,13 +95,8 @@
         white-space: nowrap;
     }
 
-    .users-table tbody tr:hover {
-        background: #f8fafc;
-    }
-
-    .table-wrapper {
-        overflow-x: auto;
-    }
+    .users-table tbody tr:hover { background: #f8fafc; }
+    .table-wrapper { overflow-x: auto; }
 
     .users-table select {
         padding: 8px;
@@ -149,20 +114,9 @@
         font-weight: bold;
     }
 
-    .student-badge {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .staff-badge {
-        background: #e2e8f0;
-        color: #475569;
-    }
-
-    .admin-badge {
-        background: #ede9fe;
-        color: #6d28d9;
-    }
+    .student-badge { background: #dbeafe; color: #1e40af; }
+    .staff-badge { background: #e2e8f0; color: #475569; }
+    .admin-badge { background: #ede9fe; color: #6d28d9; }
 
     .message {
         padding: 13px 15px;
@@ -183,9 +137,7 @@
         border: 1px solid #fecaca;
     }
 
-    .error-message p {
-        margin: 4px 0;
-    }
+    .error-message p { margin: 4px 0; }
 
     .section-title {
         margin: 30px 0 12px;
@@ -207,13 +159,6 @@
         flex-wrap: nowrap;
     }
 
-    .staff-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
     .filter-controls {
         display: flex;
         align-items: end;
@@ -230,8 +175,7 @@
         font-weight: 600;
     }
 
-    .filter-controls input,
-    .filter-controls select {
+    .filter-controls input, .filter-controls select {
         min-width: 170px;
         padding: 9px 10px;
         border: 1px solid #cbd5e1;
@@ -240,27 +184,13 @@
         font-size: 13px;
     }
 
-    .program-group-row td,
-    .year-group-row td {
+    .program-group-row td, .year-group-row td {
         font-weight: 700;
         color: #1e293b;
         background: #eff6ff;
     }
 
-    .year-group-row td {
-        background: #f8fafc;
-        color: #334155;
-    }
-
-    .danger-btn {
-        background: #b91c1c;
-    }
-
-    .danger-btn:hover {
-        background: #991b1b;
-    }
-
-    /* MODAL */
+    .year-group-row td { background: #f8fafc; color: #334155; }
 
     .modal {
         display: none;
@@ -289,14 +219,8 @@
     }
 
     @keyframes modalOpen {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .modal-content h3 {
@@ -321,8 +245,7 @@
         margin: 5px 0 2px;
     }
 
-    .modal-content input,
-    .modal-content select {
+    .modal-content input, .modal-content select {
         display: block;
         width: 100%;
         height: 43px;
@@ -336,8 +259,7 @@
         background: white;
     }
 
-    .modal-content input:focus,
-    .modal-content select:focus {
+    .modal-content input:focus, .modal-content select:focus {
         border-color: #203f91;
         box-shadow: 0 0 0 2px rgba(32,63,145,0.10);
     }
@@ -348,38 +270,15 @@
         margin-top: 12px;
     }
 
-    .modal-actions button {
-        flex: 1;
-    }
+    .modal-actions button { flex: 1; }
 
     @media(max-width: 600px) {
-        .page-header {
-            padding: 22px;
-        }
-
-        .page-header h2 {
-            font-size: 21px;
-        }
-
-        .users-card {
-            padding: 16px;
-        }
-
-        .modal-content {
-            padding: 20px;
-        }
-
-        .modal-actions {
-            flex-direction: column;
-        }
-
-        .create-buttons {
-            flex-direction: column;
-        }
-
-        .create-buttons button {
-            width: 100%;
-        }
+        .page-header { padding: 22px; }
+        .page-header h2 { font-size: 21px; }
+        .users-card { padding: 16px; }
+        .modal-content { padding: 20px; }
+        .modal-actions, .create-buttons { flex-direction: column; }
+        .create-buttons button { width: 100%; }
     }
 </style>
 
@@ -390,18 +289,12 @@
         <p>SUBIC BAY COLLEGES (INC). | Manage student, staff, and administrator accounts.</p>
     </div>
 
-    {{-- MESSAGES --}}
-
     @if(session('success'))
-        <div class="message success-message">
-            {{ session('success') }}
-        </div>
+        <div class="message success-message">{{ session('success') }}</div>
     @endif
 
     @if(session('error'))
-        <div class="message error-message">
-            {{ session('error') }}
-        </div>
+        <div class="message error-message">{{ session('error') }}</div>
     @endif
 
     @if($errors->any())
@@ -416,19 +309,14 @@
 
     <div class="users-card">
         <h3 class="card-heading">Create Accounts</h3>
-
-        <p class="card-description">
-            Register new student and staff accounts in the system.
-        </p>
+        <p class="card-description">Register new student and staff accounts in the system.</p>
 
         <div class="create-buttons">
-            <button type="button" class="btn"
-                onclick="openModal('studentModal')">
+            <button type="button" class="btn" onclick="openModal('studentModal')">
                 + Create Student Account
             </button>
 
-            <button type="button" class="btn"
-                onclick="openModal('staffModal')">
+            <button type="button" class="btn" onclick="openModal('staffModal')">
                 + Create Staff Account
             </button>
         </div>
@@ -477,8 +365,7 @@
 
                 <div class="modal-actions">
                     <button type="submit" class="btn">Create Student</button>
-                    <button type="button" class="btn close-btn"
-                        onclick="closeModal('studentModal')">Cancel</button>
+                    <button type="button" class="btn close-btn" onclick="closeModal('studentModal')">Cancel</button>
                 </div>
             </form>
         </div>
@@ -499,6 +386,25 @@
                 <label>Email</label>
                 <input type="email" name="email" required>
 
+                <label>Department</label>
+                <select name="department" id="createStaffDepartment"
+                    onchange="toggleSignatoryGroup('createStaffDepartment', 'createSignatoryGroup')" required>
+                    <option value="">Select Department</option>
+                    @foreach($staffDepartments as $department)
+                        <option value="{{ $department }}">{{ $department }}</option>
+                    @endforeach
+                </select>
+
+                <div id="createSignatoryGroup" style="display: none;">
+                    <label>DEAM Signatory Group</label>
+                    <select name="signatory_group" id="createStaffSignatory">
+                        <option value="">Select Signatory Group</option>
+                        @foreach($deamSignatoryGroups as $key => $group)
+                            <option value="{{ $key }}">{{ $group }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <label>Password</label>
                 <input type="password" name="password" required>
 
@@ -507,8 +413,7 @@
 
                 <div class="modal-actions">
                     <button type="submit" class="btn">Create Staff</button>
-                    <button type="button" class="btn close-btn"
-                        onclick="closeModal('staffModal')">Cancel</button>
+                    <button type="button" class="btn close-btn" onclick="closeModal('staffModal')">Cancel</button>
                 </div>
             </form>
         </div>
@@ -522,28 +427,18 @@
         <form method="GET" action="{{ route('admin.users') }}" class="filter-controls">
             <label>
                 Search name or program
-                <input type="search" name="search" value="{{ $search }}"
-                    placeholder="Search students or programs">
+                <input type="search" name="search" value="{{ $search ?? '' }}" placeholder="Search students or programs">
             </label>
 
             <label>
                 Course / Program
                 <select name="program">
                     <option value="">All Programs</option>
-                    @foreach($studentCourseOptions as $course)
-                        <option value="{{ 'value:' . base64_encode($course) }}"
-                            {{ $selectedProgram === 'value:' . base64_encode($course) ? 'selected' : '' }}>
-                            {{ $course }}
-                        </option>
-                    @endforeach
-
                     @foreach($programOptions as $option)
-                        @if(!in_array($option['label'], $studentCourseOptions, true))
-                            <option value="{{ $option['value'] }}"
-                                {{ $selectedProgram === $option['value'] ? 'selected' : '' }}>
-                                {{ $option['label'] }}
-                            </option>
-                        @endif
+                        <option value="{{ $option['value'] }}"
+                            {{ ($selectedProgram ?? '') === $option['value'] ? 'selected' : '' }}>
+                            {{ $option['label'] }}
+                        </option>
                     @endforeach
                 </select>
             </label>
@@ -554,7 +449,7 @@
                     <option value="">All Year Levels</option>
                     @foreach($yearLevelOptions as $option)
                         <option value="{{ $option['value'] }}"
-                            {{ $selectedYearLevel === $option['value'] ? 'selected' : '' }}>
+                            {{ ($selectedYearLevel ?? '') === $option['value'] ? 'selected' : '' }}>
                             {{ $option['label'] }}
                         </option>
                     @endforeach
@@ -592,136 +487,51 @@
                         </tr>
 
                         @foreach($yearGroup['students'] as $user)
-                        <tr>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->student_id ?? '—' }}</td>
-                            <td>{{ filled($user->program) ? $user->program : 'Not Set' }}</td>
-                            <td>{{ filled($user->year_level) ? $user->year_level : 'Not Set' }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td><span class="role-badge student-badge">Student</span></td>
-                            <td>
-                                <div class="staff-actions">
-                                    <button type="button" class="btn edit-btn"
-                                        onclick="openModal('editStudent{{ $user->_id }}')">
-                                        Edit
-                                    </button>
+                            <tr>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->student_id ?? '—' }}</td>
+                                <td>{{ $user->program ?? 'Not Set' }}</td>
+                                <td>{{ $user->year_level ?? 'Not Set' }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td><span class="role-badge student-badge">Student</span></td>
+                                <td>
+                                    <div class="staff-actions">
+                                        <button type="button" class="btn edit-btn"
+                                            onclick="openModal('editStudent{{ $user->_id }}')">
+                                            Edit
+                                        </button>
 
-                                    <form method="POST"
-                                        action="{{ route('admin.users.updateRole', $user->_id) }}"
-                                        class="role-form">
-                                        @csrf
-                                        @method('PATCH')
-                                        <select name="role" required>
-                                            <option value="student" selected>Student</option>
-                                            <option value="staff">Staff</option>
-                                            @if($isMainAdmin)
-                                                <option value="admin">Admin</option>
-                                            @endif
-                                        </select>
-                                        <button type="submit" class="btn">Change Role</button>
-                                    </form>
-
-                                    @if(isset($canDeleteUserIds[(string) $user->getKey()]))
-                                        <form method="POST"
-                                            action="{{ route('admin.users.destroy', $user->_id) }}"
-                                            onsubmit="return confirm('Deactivate this student account?');">
+                                        <form method="POST" action="{{ route('admin.users.updateRole', $user->_id) }}" class="role-form">
                                             @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn danger-btn">Delete</button>
+                                            @method('PATCH')
+
+                                            <select name="role" required>
+                                                <option value="student" selected>Student</option>
+                                                <option value="staff">Staff</option>
+                                                @if($isMainAdmin)
+                                                    <option value="admin">Admin</option>
+                                                @endif
+                                            </select>
+
+                                            <button type="submit" class="btn">Change Role</button>
                                         </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
 
-                        {{-- EDIT STUDENT MODAL --}}
-
-                        <div class="modal" id="editStudent{{ $user->_id }}">
-                            <div class="modal-content">
-                                <h3>Edit Student Information</h3>
-
-                                <form method="POST"
-                                    action="{{ route('admin.users.updateStudent', $user->_id) }}">
-                                    @csrf
-                                    @method('PATCH')
-
-                                    <label>Full Name</label>
-                                    <input type="text" name="name"
-                                        value="{{ $user->name }}" required>
-
-                                    <label>Student ID</label>
-                                    <input type="text" name="student_id"
-                                        value="{{ $user->student_id ?? '' }}" required>
-
-                                    <label>Program</label>
-                                    <select name="program" required>
-                                        @if(filled($user->program) && !in_array($user->program, $studentCourseOptions, true))
-                                            <option value="{{ $user->program }}" selected>
-                                                {{ $user->program }} (existing value)
-                                            </option>
-                                        @else
-                                            <option value="" disabled
-                                                {{ filled($user->program) ? '' : 'selected' }}>
-                                                Select a course
-                                            </option>
+                                        @if(isset($canDeleteUserIds[(string) $user->getKey()]))
+                                            <form method="POST" action="{{ route('admin.users.destroy', $user->_id) }}"
+                                                onsubmit="return confirm('Deactivate this student account?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn danger-btn">Delete</button>
+                                            </form>
                                         @endif
-
-                                        @foreach($studentCourseOptions as $course)
-                                            <option value="{{ $course }}"
-                                                {{ $user->program === $course ? 'selected' : '' }}>
-                                                {{ $course }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-
-                                    <label>Year Level</label>
-                                    <select name="year_level" required>
-                                        <option value="1st Year"
-                                            {{ ($user->year_level ?? '') === '1st Year' ? 'selected' : '' }}>
-                                            1st Year
-                                        </option>
-
-                                        <option value="2nd Year"
-                                            {{ ($user->year_level ?? '') === '2nd Year' ? 'selected' : '' }}>
-                                            2nd Year
-                                        </option>
-
-                                        <option value="3rd Year"
-                                            {{ ($user->year_level ?? '') === '3rd Year' ? 'selected' : '' }}>
-                                            3rd Year
-                                        </option>
-
-                                        <option value="4th Year"
-                                            {{ ($user->year_level ?? '') === '4th Year' ? 'selected' : '' }}>
-                                            4th Year
-                                        </option>
-                                    </select>
-
-                                    <label>Email</label>
-                                    <input type="email" name="email"
-                                        value="{{ $user->email }}" required>
-
-                                    <div class="modal-actions">
-                                        <button type="submit" class="btn">
-                                            Save Changes
-                                        </button>
-
-                                        <button type="button" class="btn close-btn"
-                                            onclick="closeModal('editStudent{{ $user->_id }}')">
-                                            Cancel
-                                        </button>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-
+                                </td>
+                            </tr>
                         @endforeach
                     @endforeach
                 @empty
                     <tr>
-                        <td colspan="7" class="empty-row">
-                            No student accounts match these filters.
-                        </td>
+                        <td colspan="7" class="empty-row">No student accounts match these filters.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -738,6 +548,8 @@
                 <tr>
                     <th>Full Name</th>
                     <th>Email</th>
+                    <th>Department</th>
+                    <th>Signatory Group</th>
                     <th>Role</th>
                     <th>Actions</th>
                 </tr>
@@ -745,89 +557,54 @@
 
             <tbody>
                 @forelse($staffUsers as $user)
-                        <tr>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td><span class="role-badge staff-badge">Staff</span></td>
+                    <tr>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->email }}</td>
+                        <td>{{ $user->department ?? 'Not Assigned' }}</td>
+                        <td>
+                            @if(($user->department ?? '') === 'DEAM PROGRAM')
+                                {{ $deamSignatoryGroups[$user->signatory_group ?? ''] ?? 'Not Assigned' }}
+                            @else
+                                —
+                            @endif
+                        </td>
+                        <td><span class="role-badge staff-badge">Staff</span></td>
+                        <td>
+                            <div class="staff-actions">
+                                <button type="button" class="btn edit-btn"
+                                    onclick="openModal('editStaff{{ $user->_id }}')">
+                                    Edit
+                                </button>
 
-                            <td>
-                                <div class="staff-actions">
-
-                                    <button type="button" class="btn edit-btn"
-                                        onclick="openModal('editStaff{{ $user->_id }}')">
-                                        Edit
-                                    </button>
-
-                                    <form method="POST"
-                                        action="{{ route('admin.users.updateRole', $user->_id) }}"
-                                        class="role-form">
-
-                                        @csrf
-                                        @method('PATCH')
-
-                                        <select name="role" required>
-                                            <option value="student">Student</option>
-                                            <option value="staff" selected>Staff</option>
-                                            @if($isMainAdmin)
-                                                <option value="admin">Admin</option>
-                                            @endif
-                                        </select>
-
-                                        <button type="submit" class="btn">
-                                            Change Role
-                                        </button>
-                                    </form>
-
-                                    @if(isset($canDeleteUserIds[(string) $user->getKey()]))
-                                        <form method="POST"
-                                            action="{{ route('admin.users.destroy', $user->_id) }}"
-                                            onsubmit="return confirm('Deactivate this staff account?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn danger-btn">Delete</button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-
-                        {{-- EDIT STAFF MODAL --}}
-
-                        <div class="modal" id="editStaff{{ $user->_id }}">
-                            <div class="modal-content">
-                                <h3>Edit Staff Information</h3>
-
-                                <form method="POST"
-                                    action="{{ route('admin.users.updateStaff', $user->_id) }}">
+                                <form method="POST" action="{{ route('admin.users.updateRole', $user->_id) }}" class="role-form">
                                     @csrf
                                     @method('PATCH')
 
-                                    <label>Full Name</label>
-                                    <input type="text" name="name"
-                                        value="{{ $user->name }}" required>
+                                    <select name="role" required>
+                                        <option value="student">Student</option>
+                                        <option value="staff" selected>Staff</option>
+                                        @if($isMainAdmin)
+                                            <option value="admin">Admin</option>
+                                        @endif
+                                    </select>
 
-                                    <label>Email</label>
-                                    <input type="email" name="email"
-                                        value="{{ $user->email }}" required>
-
-                                    <div class="modal-actions">
-                                        <button type="submit" class="btn">
-                                            Save Changes
-                                        </button>
-
-                                        <button type="button" class="btn close-btn"
-                                            onclick="closeModal('editStaff{{ $user->_id }}')">
-                                            Cancel
-                                        </button>
-                                    </div>
+                                    <button type="submit" class="btn">Change Role</button>
                                 </form>
+
+                                @if(isset($canDeleteUserIds[(string) $user->getKey()]))
+                                    <form method="POST" action="{{ route('admin.users.destroy', $user->_id) }}"
+                                        onsubmit="return confirm('Deactivate this staff account?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn danger-btn">Delete</button>
+                                    </form>
+                                @endif
                             </div>
-                        </div>
+                        </td>
+                    </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="empty-row">
-                            No staff accounts found.
-                        </td>
+                        <td colspan="6" class="empty-row">No staff accounts found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -851,49 +628,161 @@
 
             <tbody>
                 @forelse($adminUsers as $user)
-                        <tr>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td><span class="role-badge admin-badge">Admin</span></td>
-                            <td>
-                                <div class="staff-actions">
-                                    @if($isMainAdmin && (string) $user->getKey() !== (string) auth()->user()->getKey())
-                                        <form method="POST"
-                                            action="{{ route('admin.users.updateRole', $user->_id) }}"
-                                            class="role-form">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="role" required>
-                                                <option value="admin" selected>Admin</option>
-                                                <option value="student">Student</option>
-                                                <option value="staff">Staff</option>
-                                            </select>
-                                            <button type="submit" class="btn">Change Role</button>
-                                        </form>
-                                    @endif
+                    <tr>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->email }}</td>
+                        <td><span class="role-badge admin-badge">Admin</span></td>
+                        <td>
+                            <div class="staff-actions">
+                                @if($isMainAdmin && (string) $user->getKey() !== (string) auth()->user()->getKey())
+                                    <form method="POST" action="{{ route('admin.users.updateRole', $user->_id) }}" class="role-form">
+                                        @csrf
+                                        @method('PATCH')
 
-                                    @if(isset($canDeleteUserIds[(string) $user->getKey()]))
-                                        <form method="POST"
-                                            action="{{ route('admin.users.destroy', $user->_id) }}"
-                                            onsubmit="return confirm('Deactivate this admin account?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn danger-btn">Delete</button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
+                                        <select name="role" required>
+                                            <option value="admin" selected>Admin</option>
+                                            <option value="student">Student</option>
+                                            <option value="staff">Staff</option>
+                                        </select>
+
+                                        <button type="submit" class="btn">Change Role</button>
+                                    </form>
+                                @endif
+
+                                @if(isset($canDeleteUserIds[(string) $user->getKey()]))
+                                    <form method="POST" action="{{ route('admin.users.destroy', $user->_id) }}"
+                                        onsubmit="return confirm('Deactivate this admin account?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn danger-btn">Delete</button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="empty-row">
-                            No admin accounts found.
-                        </td>
+                        <td colspan="4" class="empty-row">No admin accounts found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
+    {{-- EDIT STUDENT MODALS --}}
+
+    @foreach($studentsByProgram as $programGroup)
+        @foreach($programGroup['years'] as $yearGroup)
+            @foreach($yearGroup['students'] as $user)
+                <div class="modal" id="editStudent{{ $user->_id }}">
+                    <div class="modal-content">
+                        <h3>Edit Student Information</h3>
+
+                        <form method="POST" action="{{ route('admin.users.updateStudent', $user->_id) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <label>Full Name</label>
+                            <input type="text" name="name" value="{{ $user->name }}" required>
+
+                            <label>Student ID</label>
+                            <input type="text" name="student_id" value="{{ $user->student_id ?? '' }}" required>
+
+                            <label>Program</label>
+                            <select name="program" required>
+                                <option value="">Select a course</option>
+                                @foreach($studentCourseOptions as $course)
+                                    <option value="{{ $course }}" {{ ($user->program ?? '') === $course ? 'selected' : '' }}>
+                                        {{ $course }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <label>Year Level</label>
+                            <select name="year_level" required>
+                                @foreach(['1st Year', '2nd Year', '3rd Year', '4th Year'] as $year)
+                                    <option value="{{ $year }}" {{ ($user->year_level ?? '') === $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <label>Email</label>
+                            <input type="email" name="email" value="{{ $user->email }}" required>
+
+                            <div class="modal-actions">
+                                <button type="submit" class="btn">Save Changes</button>
+                                <button type="button" class="btn close-btn"
+                                    onclick="closeModal('editStudent{{ $user->_id }}')">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        @endforeach
+    @endforeach
+
+    {{-- EDIT STAFF MODALS --}}
+
+    @foreach($staffUsers as $user)
+        <div class="modal" id="editStaff{{ $user->_id }}">
+            <div class="modal-content">
+                <h3>Edit Staff Information</h3>
+
+                <form method="POST" action="{{ route('admin.users.updateStaff', $user->_id) }}">
+                    @csrf
+                    @method('PATCH')
+
+                    <label>Full Name</label>
+                    <input type="text" name="name" value="{{ $user->name }}" required>
+
+                    <label>Email</label>
+                    <input type="email" name="email" value="{{ $user->email }}" required>
+
+                    <label>Department</label>
+                    <select name="department"
+                        id="department{{ $user->_id }}"
+                        onchange="toggleSignatoryGroup('department{{ $user->_id }}', 'signatory{{ $user->_id }}')"
+                        required>
+
+                        <option value="">Select Department</option>
+                        @foreach($staffDepartments as $department)
+                            <option value="{{ $department }}" {{ ($user->department ?? '') === $department ? 'selected' : '' }}>
+                                {{ $department }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div id="signatory{{ $user->_id }}"
+                        @if(($user->department ?? '') !== 'DEAM PROGRAM')
+                            style="display: none;"
+                        @endif>
+
+                        <label>DEAM Signatory Group</label>
+
+                        <select name="signatory_group">
+                            <option value="">Select Signatory Group</option>
+                            @foreach($deamSignatoryGroups as $key => $group)
+                                <option value="{{ $key }}" {{ ($user->signatory_group ?? '') === $key ? 'selected' : '' }}>
+                                    {{ $group }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn">Save Changes</button>
+                        <button type="button" class="btn close-btn"
+                            onclick="closeModal('editStaff{{ $user->_id }}')">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
 
 </div>
 
@@ -903,6 +792,12 @@
 
         if (modal) {
             modal.style.display = 'flex';
+
+            const departmentSelect = modal.querySelector('select[name="department"]');
+
+            if (departmentSelect) {
+                departmentSelect.dispatchEvent(new Event('change'));
+            }
         }
     }
 
@@ -911,6 +806,28 @@
 
         if (modal) {
             modal.style.display = 'none';
+        }
+    }
+
+    function toggleSignatoryGroup(departmentId, groupId) {
+        const department = document.getElementById(departmentId);
+        const groupContainer = document.getElementById(groupId);
+
+        if (!department || !groupContainer) {
+            return;
+        }
+
+        const groupSelect = groupContainer.querySelector('select');
+        const isDeam = department.value === 'DEAM PROGRAM';
+
+        groupContainer.style.display = isDeam ? 'block' : 'none';
+
+        if (groupSelect) {
+            groupSelect.required = isDeam;
+
+            if (!isDeam) {
+                groupSelect.value = '';
+            }
         }
     }
 
