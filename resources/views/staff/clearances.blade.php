@@ -5,6 +5,21 @@
 
 @section('content')
 
+@php
+    $currentUser = auth()->user();
+
+    $deamGroups = [
+        'deam_group_1' => 'BSEd – Math / BEEd – GenEd',
+        'deam_group_2' => 'BSEntrep / BSCA',
+        'deam_group_3' => 'BSHM / BSTM',
+        'deam_group_4' => 'BSIT',
+        'deam_group_5' => 'BSCrim',
+    ];
+
+    $assignedDepartment = $currentUser->department ?? null;
+    $assignedGroup = $deamGroups[$currentUser->signatory_group ?? ''] ?? null;
+@endphp
+
 <style>
     .staff-container {
         width: 100%;
@@ -30,6 +45,26 @@
         font-size: 14px;
     }
 
+    .assignment-card {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+    }
+
+    .assignment-card h4 {
+        margin: 0 0 8px;
+        color: #1e3a8a;
+        font-size: 15px;
+    }
+
+    .assignment-card p {
+        margin: 4px 0;
+        color: #334155;
+        font-size: 13px;
+    }
+
     .content-card {
         background: white;
         padding: 25px;
@@ -48,6 +83,12 @@
         color: #64748b;
         margin: 0 0 20px;
         font-size: 14px;
+    }
+
+    .record-count {
+        color: #475569;
+        font-size: 13px;
+        margin-bottom: 15px;
     }
 
     .clearance-table {
@@ -203,6 +244,28 @@
         <p>SUBIC BAY COLLEGES (INC). | Student Clearance Management System</p>
     </div>
 
+    <div class="assignment-card">
+        <h4>Access Assignment</h4>
+
+        @if($currentUser->role === 'admin')
+            <p><strong>Role:</strong> Administrator</p>
+            <p><strong>Access:</strong> All Departments</p>
+        @else
+            <p><strong>Role:</strong> Staff</p>
+            <p>
+                <strong>Assigned Department:</strong>
+                {{ $assignedDepartment ?? 'Not yet assigned' }}
+            </p>
+
+            @if($assignedDepartment === 'DEAM PROGRAM')
+                <p>
+                    <strong>DEAM Signatory Group:</strong>
+                    {{ $assignedGroup ?? 'Not yet assigned' }}
+                </p>
+            @endif
+        @endif
+    </div>
+
     <div class="content-card">
 
         <h3 class="section-title">Clearance Records</h3>
@@ -217,11 +280,21 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="error-message">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="error-message">
                 {{ $errors->first() }}
             </div>
         @endif
+
+        <div class="record-count">
+            Total records: <strong>{{ $clearances->count() }}</strong>
+        </div>
 
         <div class="table-wrapper">
             <table class="clearance-table">
@@ -308,7 +381,7 @@
 
                         <tr>
                             <td colspan="5" class="empty-state">
-                                No clearance records found.
+                                No clearance records found for your assigned department.
                             </td>
                         </tr>
 
