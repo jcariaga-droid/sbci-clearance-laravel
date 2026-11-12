@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('page-title', 'My Clearance')
@@ -49,6 +50,40 @@
     .table-wrapper {
         overflow-x: auto;
     }
+
+    .completion-notice {
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        border-left: 5px solid #16a34a;
+        padding: 20px;
+        border-radius: 9px;
+        margin-bottom: 22px;
+    }
+
+    .completion-notice h3 {
+        color: #166534;
+        margin: 0 0 8px;
+    }
+
+    .completion-notice p {
+        color: #166534;
+        margin: 0 0 14px;
+    }
+
+    .completion-button {
+        display: inline-block;
+        background: #166534;
+        color: #fff;
+        padding: 11px 18px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .completion-button:hover {
+        background: #14532d;
+        color: #fff;
+    }
 </style>
 
 <h2>My Clearance</h2>
@@ -71,6 +106,20 @@
         @foreach($errors->all() as $error)
             <p>{{ $error }}</p>
         @endforeach
+    </div>
+@endif
+
+@if($isComplete)
+    <div class="completion-notice">
+        <h3>Congratulations! Your clearance is complete.</h3>
+        <p>
+            All six required departments have approved your clearance.
+            You can now view and print your completion summary.
+        </p>
+
+        <a href="{{ route('clearance.completion') }}" class="completion-button">
+            View Completion Summary
+        </a>
     </div>
 @endif
 
