@@ -84,6 +84,35 @@
         background: #14532d;
         color: #fff;
     }
+
+    /* CLEARANCE STATUS COLORS */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 13px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+        min-width: 85px;
+    }
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffe69c;
+    }
+
+    .status-badge.approved {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .status-badge.rejected {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
 </style>
 
 <h2>My Clearance</h2>
@@ -164,7 +193,18 @@
                 @forelse($clearances as $clearance)
                     <tr>
                         <td>{{ $clearance->department ?? '—' }}</td>
-                        <td>{{ $clearance->status ?? 'Pending' }}</td>
+
+                        <td>
+                            @php
+                                $status = $clearance->status ?? 'Pending';
+                                $statusClass = strtolower($status);
+                            @endphp
+
+                            <span class="status-badge {{ $statusClass }}">
+                                {{ $status }}
+                            </span>
+                        </td>
+
                         <td>
                             @if(($clearance->status ?? '') === 'Approved' && $clearance->approved_at)
                                 {{ $clearance->approved_at->format('M d, Y h:i A') }}
@@ -172,6 +212,7 @@
                                 —
                             @endif
                         </td>
+
                         <td>{{ $clearance->remarks ?? '—' }}</td>
                     </tr>
                 @empty
