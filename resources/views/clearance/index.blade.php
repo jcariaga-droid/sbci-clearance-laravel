@@ -155,6 +155,7 @@
                 <tr>
                     <th>Department</th>
                     <th>Status</th>
+                    <th>Approval Date</th>
                     <th>Remarks</th>
                 </tr>
             </thead>
@@ -164,11 +165,18 @@
                     <tr>
                         <td>{{ $clearance->department ?? '—' }}</td>
                         <td>{{ $clearance->status ?? 'Pending' }}</td>
+                        <td>
+                            @if(($clearance->status ?? '') === 'Approved' && $clearance->approved_at)
+                                {{ $clearance->approved_at->format('M d, Y h:i A') }}
+                            @else
+                                —
+                            @endif
+                        </td>
                         <td>{{ $clearance->remarks ?? '—' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3">No clearance requests submitted yet.</td>
+                        <td colspan="4">No clearance requests submitted yet.</td>
                     </tr>
                 @endforelse
             </tbody>

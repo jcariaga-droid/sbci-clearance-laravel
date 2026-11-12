@@ -15,5 +15,10 @@ class Clearance extends Model
         'department',
         'status',
         'remarks',
+        'approved_at',
+    ];
+
+    protected $casts = [
+        'approved_at' => 'datetime',
     ];
 }

@@ -129,10 +129,18 @@ class StaffClearanceController extends Controller
             }
         }
 
-        $clearance->update([
-            'status' => $request->status,
-            'remarks' => $request->remarks,
-        ]);
+        // Record the date and time when the clearance is approved.
+        if ($request->status === 'Approved') {
+            if ($clearance->status !== 'Approved' || !$clearance->approved_at) {
+                $clearance->approved_at = now();
+            }
+        } else {
+            $clearance->approved_at = null;
+        }
+
+        $clearance->status = $request->status;
+        $clearance->remarks = $request->remarks;
+        $clearance->save();
 
         return redirect()
             ->route('staff.clearances')
