@@ -32,10 +32,22 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        // ONLY SBCI EMAIL DOMAIN IS ALLOWED FOR NEW REGISTRATIONS
+        $email = trim($request->email);
+
+        $emailDomain = strtolower(
+            substr(strrchr($email, '@') ?: '', 1)
+        );
+
+        if ($emailDomain !== 'subicbaycolleges.com') {
+            throw ValidationException::withMessages([
+                'email' => 'Only @subicbaycolleges.com email addresses are allowed to register.',
+            ]);
+        }
+
         // Check only active accounts.
         // Soft-deleted accounts are excluded from this check.
-        $existingUser = User::where('email', $request->email)
-            ->first();
+        $existingUser = User::where('email', $email)->first();
 
         if ($existingUser) {
             throw ValidationException::withMessages([
@@ -45,7 +57,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $email,
             'password' => Hash::make($request->password),
             'role' => 'student',
         ]);
