@@ -71,6 +71,11 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/clearance', [ClearanceController::class, 'store'])
             ->name('clearance.store');
+
+        // STUDENT CLEARANCE COMPLETION SUMMARY
+        Route::get('/clearance/completion', [ClearanceController::class, 'completion'])
+            ->middleware('role:student')
+            ->name('clearance.completion');
     });
 
     Route::middleware('role:staff,admin')->group(function () {
