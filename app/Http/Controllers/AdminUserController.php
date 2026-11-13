@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 class AdminUserController extends Controller
 {
     private const STAFF_DEPARTMENTS = [
-        'DEAM PROGRAM',
+        'DEAN PROGRAM',
         'LIBRARY',
         'PROPERTY CUSTODIAN',
         'ACCOUNTING',
@@ -112,7 +112,7 @@ class AdminUserController extends Controller
             ],
             'signatory_group' => [
                 'nullable',
-                'required_if:department,DEAM PROGRAM',
+                'required_if:department,DEAN PROGRAM',
                 'string',
                 Rule::in(self::DEAM_SIGNATORY_GROUPS),
             ],
@@ -124,7 +124,7 @@ class AdminUserController extends Controller
         $staff->password = Hash::make($validated['password']);
         $staff->role = 'staff';
         $staff->department = $validated['department'];
-        $staff->signatory_group = $validated['department'] === 'DEAM PROGRAM'
+        $staff->signatory_group = $validated['department'] === 'DEAN PROGRAM'
             ? $validated['signatory_group']
             : null;
 
@@ -244,7 +244,7 @@ class AdminUserController extends Controller
             ],
             'signatory_group' => [
                 'nullable',
-                'required_if:department,DEAM PROGRAM',
+                'required_if:department,DEAN PROGRAM',
                 'string',
                 Rule::in(self::DEAM_SIGNATORY_GROUPS),
             ],
@@ -253,7 +253,7 @@ class AdminUserController extends Controller
         $staff->name = $validated['name'];
         $staff->email = $validated['email'];
         $staff->department = $validated['department'];
-        $staff->signatory_group = $validated['department'] === 'DEAM PROGRAM'
+        $staff->signatory_group = $validated['department'] === 'DEAN PROGRAM'
             ? $validated['signatory_group']
             : null;
 

@@ -34,47 +34,50 @@ class StaffClearanceController extends Controller
     {
         $actor = Auth::user();
 
-        // Admin can view all clearance requests.
         if ($actor->role === 'admin') {
             $clearances = Clearance::latest()->get();
 
-            return view('staff.clearances', compact('clearances'));
+            $students = User::withTrashed()
+                ->whereIn('email', $clearances->pluck('student_id')->unique()->all())
+                ->get()
+                ->keyBy('email');
+
+            return view('staff.clearances', compact('clearances', 'students'));
         }
 
-        // Only assigned staff can access this page.
         abort_unless($actor->role === 'staff', 403);
 
         $department = $actor->department;
 
-        // Staff without an assigned department cannot view requests.
         if (!$department) {
             $clearances = collect();
+            $students = collect();
 
-            return view('staff.clearances', compact('clearances'));
+            return view('staff.clearances', compact('clearances', 'students'));
         }
 
         $clearances = Clearance::where('department', $department)
             ->latest()
             ->get();
 
-        // Additional filtering for DEAM signatories.
-        if ($department === 'DEAM PROGRAM') {
+        $studentEmails = $clearances
+            ->pluck('student_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        $students = User::withTrashed()
+            ->whereIn('email', $studentEmails)
+            ->get()
+            ->keyBy('email');
+
+        if ($department === 'DEAN PROGRAM') {
             $group = $actor->signatory_group;
             $allowedPrograms = self::DEAM_SIGNATORY_GROUPS[$group] ?? [];
 
             if (empty($allowedPrograms)) {
                 $clearances = collect();
             } else {
-                $studentEmails = $clearances
-                    ->pluck('student_id')
-                    ->unique()
-                    ->values()
-                    ->all();
-
-                $students = User::whereIn('email', $studentEmails)
-                    ->get()
-                    ->keyBy('email');
-
                 $clearances = $clearances->filter(function ($clearance) use (
                     $students,
                     $allowedPrograms
@@ -87,7 +90,7 @@ class StaffClearanceController extends Controller
             }
         }
 
-        return view('staff.clearances', compact('clearances'));
+        return view('staff.clearances', compact('clearances', 'students'));
     }
 
     public function update(Request $request, $id)
@@ -101,24 +104,22 @@ class StaffClearanceController extends Controller
 
         $clearance = Clearance::findOrFail($id);
 
-        // Admin can update any clearance request.
         if ($actor->role !== 'admin') {
             abort_unless($actor->role === 'staff', 403);
 
-            // Department must match the staff assignment.
             abort_unless(
                 $actor->department
                 && $clearance->department === $actor->department,
                 403
             );
 
-            // DEAM staff can only update students in their assigned group.
-            if ($actor->department === 'DEAM PROGRAM') {
+            if ($actor->department === 'DEAN PROGRAM') {
                 $allowedPrograms = self::DEAM_SIGNATORY_GROUPS[
                     $actor->signatory_group
                 ] ?? [];
 
-                $student = User::where('email', $clearance->student_id)
+                $student = User::withTrashed()
+                    ->where('email', $clearance->student_id)
                     ->first();
 
                 abort_unless(
@@ -129,7 +130,6 @@ class StaffClearanceController extends Controller
             }
         }
 
-        // Record the date and time when the clearance is approved.
         if ($request->status === 'Approved') {
             if ($clearance->status !== 'Approved' || !$clearance->approved_at) {
                 $clearance->approved_at = now();

@@ -1,4 +1,4 @@
-
+﻿
 @extends('layouts.app')
 
 @section('page-title', 'Manage Users')
@@ -396,7 +396,7 @@
                 </select>
 
                 <div id="createSignatoryGroup" style="display: none;">
-                    <label>DEAM Signatory Group</label>
+                    <label>DEAN Signatory Group</label>
                     <select name="signatory_group" id="createStaffSignatory">
                         <option value="">Select Signatory Group</option>
                         @foreach($deamSignatoryGroups as $key => $group)
@@ -562,7 +562,7 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->department ?? 'Not Assigned' }}</td>
                         <td>
-                            @if(($user->department ?? '') === 'DEAM PROGRAM')
+                            @if(($user->department ?? '') === 'DEAN PROGRAM')
                                 {{ $deamSignatoryGroups[$user->signatory_group ?? ''] ?? 'Not Assigned' }}
                             @else
                                 —
@@ -756,11 +756,11 @@
                     </select>
 
                     <div id="signatory{{ $user->_id }}"
-                        @if(($user->department ?? '') !== 'DEAM PROGRAM')
+                        @if(($user->department ?? '') !== 'DEAN PROGRAM')
                             style="display: none;"
                         @endif>
 
-                        <label>DEAM Signatory Group</label>
+                        <label>DEAN Signatory Group</label>
 
                         <select name="signatory_group">
                             <option value="">Select Signatory Group</option>
@@ -818,14 +818,14 @@
         }
 
         const groupSelect = groupContainer.querySelector('select');
-        const isDeam = department.value === 'DEAM PROGRAM';
+        const isDean = department.value === 'DEAN PROGRAM';
 
-        groupContainer.style.display = isDeam ? 'block' : 'none';
+        groupContainer.style.display = isDean ? 'block' : 'none';
 
         if (groupSelect) {
-            groupSelect.required = isDeam;
+            groupSelect.required = isDean;
 
-            if (!isDeam) {
+            if (!isDean) {
                 groupSelect.value = '';
             }
         }

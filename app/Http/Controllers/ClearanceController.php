@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class ClearanceController extends Controller
 {
     private const REQUIRED_DEPARTMENTS = [
-        'DEAM PROGRAM',
+        'DEAN PROGRAM',
         'LIBRARY',
         'PROPERTY CUSTODIAN',
         'ACCOUNTING',
@@ -73,7 +73,7 @@ class ClearanceController extends Controller
     private function getLatestDepartmentClearances(string $email)
     {
         $records = Clearance::where('student_id', $email)
-            ->latest()
+            ->orderBy('updated_at', 'desc')
             ->get();
 
         $latest = [];
@@ -95,7 +95,7 @@ class ClearanceController extends Controller
             'department' => [
                 'required',
                 'string',
-                'in:DEAM PROGRAM,LIBRARY,PROPERTY CUSTODIAN,ACCOUNTING,REGISTRAR,OSAS',
+                'in:DEAN PROGRAM,LIBRARY,PROPERTY CUSTODIAN,ACCOUNTING,REGISTRAR,OSAS',
             ],
         ]);
 

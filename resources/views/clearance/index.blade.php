@@ -162,7 +162,7 @@
 
         <select name="department" id="department" required>
             <option value="">-- Select Department --</option>
-            <option value="DEAM PROGRAM">DEAM PROGRAM</option>
+            <option value="DEAN PROGRAM">DEAN PROGRAM</option>
             <option value="LIBRARY">LIBRARY</option>
             <option value="PROPERTY CUSTODIAN">PROPERTY CUSTODIAN</option>
             <option value="ACCOUNTING">ACCOUNTING</option>

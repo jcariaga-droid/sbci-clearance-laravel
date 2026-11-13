@@ -211,6 +211,22 @@
         color: #475569;
     }
 
+    .status-deleted {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #e2e8f0;
+        color: #475569;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .student-name {
+        color: #1e293b;
+        font-weight: 600;
+    }
+
     .student-email {
         color: #475569;
         word-break: break-word;
@@ -257,9 +273,9 @@
                 {{ $assignedDepartment ?? 'Not yet assigned' }}
             </p>
 
-            @if($assignedDepartment === 'DEAM PROGRAM')
+            @if($assignedDepartment === 'DEAN PROGRAM')
                 <p>
-                    <strong>DEAM Signatory Group:</strong>
+                    <strong>DEAN Signatory Group:</strong>
                     {{ $assignedGroup ?? 'Not yet assigned' }}
                 </p>
             @endif
@@ -319,11 +335,27 @@
                                 'rejected' => 'status-rejected',
                                 default => 'status-default',
                             };
+
+                            $student = $students->get($clearance->student_id);
                         @endphp
 
                         <tr>
                             <td class="student-email">
+                                @if($student)
+                                    <span class="student-name">
+                                        {{ $student->name }}
+                                    </span>
+                                    <br>
+                                @endif
+
                                 {{ $clearance->student_id }}
+
+                                @if($student && $student->trashed())
+                                    <br>
+                                    <span class="status-deleted">
+                                        Deleted Student
+                                    </span>
+                                @endif
                             </td>
 
                             <td>
