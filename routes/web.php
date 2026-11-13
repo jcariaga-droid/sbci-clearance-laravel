@@ -7,7 +7,6 @@ use App\Http\Controllers\StaffClearanceController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordController;
-use App\Http\Controllers\ForgotPasswordController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -20,20 +19,6 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-// FORGOT PASSWORD
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
-    ->name('password.request');
-
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])
-    ->name('password.email');
-
-// RESET PASSWORD
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
-    ->name('password.reset');
-
-Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
-    ->name('password.store');
-
 // AUTHENTICATED USERS
 Route::middleware('auth')->group(function () {
 
@@ -43,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
 
+    // CHANGE PASSWORD
     Route::get('/change-password', [PasswordController::class, 'edit'])
         ->name('password.edit');
 

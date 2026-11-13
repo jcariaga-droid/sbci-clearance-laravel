@@ -118,12 +118,6 @@
             text-decoration: underline;
         }
 
-        .forgot-password {
-            text-align: right;
-            font-size: 12px;
-            margin-top: 7px;
-        }
-
         .error {
             color: #b91c1c;
             background: #fee2e2;
@@ -218,12 +212,6 @@
             required
         >
 
-        <p class="forgot-password">
-            <a href="{{ route('password.request') }}">
-                Forgot Password?
-            </a>
-        </p>
-
         <button type="submit">LOGIN</button>
     </form>
 
@@ -233,7 +221,7 @@
     </p>
 
     <p class="footer">
-        © {{ date('Y') }} Subic Bay Colleges (Inc). All Rights Reserved.
+        &copy; {{ date('Y') }} Subic Bay Colleges (Inc). All Rights Reserved.
     </p>
 
 </div>
