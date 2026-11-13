@@ -8,7 +8,6 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\EmailVerificationController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -35,25 +34,10 @@ Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showRes
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->name('password.store');
 
-// EMAIL VERIFICATION
-Route::middleware('auth')->group(function () {
-    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
-        ->name('verification.notice');
-
-    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
-        ->name('verification.send');
-});
-
-// SIGNED VERIFICATION LINK FROM EMAIL
-Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-    ->middleware('signed')
-    ->name('verification.verify');
-
 // AUTHENTICATED USERS
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [AuthController::class, 'dashboard'])
-        ->middleware('verified.email')
         ->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])
@@ -65,19 +49,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/change-password', [PasswordController::class, 'update'])
         ->name('password.update');
 
-    Route::middleware('verified.email')->group(function () {
-        Route::get('/clearance', [ClearanceController::class, 'index'])
-            ->name('clearance.index');
+    // STUDENT CLEARANCE
+    Route::get('/clearance', [ClearanceController::class, 'index'])
+        ->name('clearance.index');
 
-        Route::post('/clearance', [ClearanceController::class, 'store'])
-            ->name('clearance.store');
+    Route::post('/clearance', [ClearanceController::class, 'store'])
+        ->name('clearance.store');
 
-        // STUDENT CLEARANCE COMPLETION SUMMARY
-        Route::get('/clearance/completion', [ClearanceController::class, 'completion'])
-            ->middleware('role:student')
-            ->name('clearance.completion');
-    });
+    Route::get('/clearance/completion', [ClearanceController::class, 'completion'])
+        ->middleware('role:student')
+        ->name('clearance.completion');
 
+    // STAFF AND ADMIN
     Route::middleware('role:staff,admin')->group(function () {
         Route::get('/staff/clearances', [StaffClearanceController::class, 'index'])
             ->name('staff.clearances');
@@ -86,6 +69,7 @@ Route::middleware('auth')->group(function () {
             ->name('staff.clearances.update');
     });
 
+    // ADMIN
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
             ->name('admin.dashboard');

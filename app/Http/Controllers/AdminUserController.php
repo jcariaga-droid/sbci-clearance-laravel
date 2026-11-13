@@ -8,8 +8,6 @@ use App\Support\StudentListOrganizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 
 class AdminUserController extends Controller
@@ -100,45 +98,6 @@ class AdminUserController extends Controller
         ]);
     }
 
-    /**
-     * Send verification email.
-     * Local testing automatically verifies the account.
-     * Production continues using the normal email verification process.
-     */
-    private function sendVerificationEmail($student): bool
-    {
-        if (app()->environment('local')) {
-            $student->email_verified_at = now();
-            $student->save();
-
-            return true;
-        }
-
-        $link = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            [
-                'id' => (string) $student->_id,
-                'hash' => sha1($student->email),
-            ]
-        );
-
-        Mail::raw(
-            "Hello {$student->name},\n\n"
-            . "Your student account has been created in the SBCI Clearance System.\n\n"
-            . "Please verify your email by clicking this link:\n\n"
-            . $link . "\n\n"
-            . "This link will expire in 60 minutes.\n\n"
-            . "If you did not expect this account, please contact the school administrator.",
-            function ($message) use ($student) {
-                $message->to($student->email)
-                    ->subject('SBCI Clearance System - Verify Your Email');
-            }
-        );
-
-        return true;
-    }
-
     // CREATE STAFF
     public function storeStaff(Request $request)
     {
@@ -194,16 +153,12 @@ class AdminUserController extends Controller
         $student->email = $request->email;
         $student->password = Hash::make($request->password);
         $student->role = 'student';
-        $student->email_verified_at = null;
+        $student->email_verified_at = now();
         $student->save();
-
-        $this->sendVerificationEmail($student);
 
         return back()->with(
             'success',
-            app()->environment('local')
-                ? 'Student account created successfully. Email automatically verified for local testing.'
-                : 'Student account created successfully. Verification email sent.'
+            'Student account created successfully.'
         );
     }
 
@@ -226,7 +181,6 @@ class AdminUserController extends Controller
 
         $currentId = (string) $student->_id;
 
-        // Check duplicate student ID, excluding the current student.
         $duplicateStudentId = User::where('student_id', $request->student_id)
             ->where('_id', '!=', $currentId)
             ->exists();
@@ -237,7 +191,6 @@ class AdminUserController extends Controller
                 ->withInput();
         }
 
-        // Check duplicate email, excluding the current student.
         $emailChanged = $student->email !== $request->email;
 
         if ($emailChanged) {
@@ -257,24 +210,13 @@ class AdminUserController extends Controller
         $student->program = $request->program;
         $student->year_level = $request->year_level;
         $student->email = $request->email;
-
-        if ($emailChanged) {
-            $student->email_verified_at = null;
-        }
+        $student->email_verified_at = now();
 
         $student->save();
 
-        if ($emailChanged) {
-            $this->sendVerificationEmail($student);
-        }
-
         return back()->with(
             'success',
-            $emailChanged
-                ? (app()->environment('local')
-                    ? 'Student updated successfully. Email automatically verified for local testing.'
-                    : 'Student updated. Verification email sent to the new email address.')
-                : 'Student information updated successfully.'
+            'Student information updated successfully.'
         );
     }
 
@@ -341,18 +283,13 @@ class AdminUserController extends Controller
             return back()->with('error', 'You are not authorized to change this user role.');
         }
 
-        $oldRole = $user->role;
         $user->role = $request->role;
 
-        if ($oldRole !== 'student' && $request->role === 'student') {
-            $user->email_verified_at = null;
+        if ($request->role === 'student') {
+            $user->email_verified_at = now();
         }
 
         $user->save();
-
-        if ($oldRole !== 'student' && $request->role === 'student') {
-            $this->sendVerificationEmail($user);
-        }
 
         return back()->with('success', 'User role updated successfully.');
     }
