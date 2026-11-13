@@ -75,7 +75,7 @@
             margin-bottom: 20px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 14px;
             margin: 8px 0;
@@ -85,10 +85,15 @@
             background: #f8fafc;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: 2px solid #93c5fd;
             border-color: #203f91;
             background: white;
+        }
+
+        select {
+            color: #475569;
+            cursor: pointer;
         }
 
         button {
@@ -209,6 +214,28 @@
             autocomplete="email"
             required
         >
+
+        <select name="program" required>
+            <option value="">Select your program</option>
+
+            @foreach ([
+                'BEEd – GenEd',
+                'BSEd – Math',
+                'BSHM',
+                'BSCA',
+                'BSIT',
+                'BSTM',
+                'BSEntrep',
+                'BSCrim',
+            ] as $program)
+                <option
+                    value="{{ $program }}"
+                    {{ old('program') === $program ? 'selected' : '' }}
+                >
+                    {{ $program }}
+                </option>
+            @endforeach
+        </select>
 
         <input
             type="password"

@@ -34,32 +34,46 @@ class StaffClearanceController extends Controller
     {
         $actor = Auth::user();
 
+        // ADMIN: View all clearances
         if ($actor->role === 'admin') {
+
             $clearances = Clearance::latest()->get();
 
             $students = User::withTrashed()
-                ->whereIn('email', $clearances->pluck('student_id')->unique()->all())
+                ->whereIn(
+                    'email',
+                    $clearances->pluck('student_id')->unique()->all()
+                )
                 ->get()
                 ->keyBy('email');
 
-            return view('staff.clearances', compact('clearances', 'students'));
+            return view(
+                'staff.clearances',
+                compact('clearances', 'students')
+            );
         }
 
+        // Only admin and staff are allowed
         abort_unless($actor->role === 'staff', 403);
 
-        $department = $actor->department;
+        $department = trim($actor->department ?? '');
 
-        if (!$department) {
+        if (empty($department)) {
             $clearances = collect();
             $students = collect();
 
-            return view('staff.clearances', compact('clearances', 'students'));
+            return view(
+                'staff.clearances',
+                compact('clearances', 'students')
+            );
         }
 
+        // Get department clearances
         $clearances = Clearance::where('department', $department)
             ->latest()
             ->get();
 
+        // Get student records
         $studentEmails = $clearances
             ->pluck('student_id')
             ->unique()
@@ -71,30 +85,48 @@ class StaffClearanceController extends Controller
             ->get()
             ->keyBy('email');
 
+        // DEAN PROGRAM restrictions
         if ($department === 'DEAN PROGRAM') {
+
             $group = $actor->signatory_group;
+
             $allowedPrograms = self::DEAM_SIGNATORY_GROUPS[$group] ?? [];
 
             if (empty($allowedPrograms)) {
-                $clearances = collect();
-            } else {
-                $clearances = $clearances->filter(function ($clearance) use (
-                    $students,
-                    $allowedPrograms
-                ) {
-                    $student = $students->get($clearance->student_id);
 
-                    return $student
-                        && in_array($student->program, $allowedPrograms, true);
-                })->values();
+                $clearances = collect();
+
+            } else {
+
+                $clearances = $clearances->filter(
+                    function ($clearance) use (
+                        $students,
+                        $allowedPrograms
+                    ) {
+                        $student = $students->get(
+                            $clearance->student_id
+                        );
+
+                        return $student
+                            && in_array(
+                                trim($student->program ?? ''),
+                                $allowedPrograms,
+                                true
+                            );
+                    }
+                )->values();
             }
         }
 
-        return view('staff.clearances', compact('clearances', 'students'));
+        return view(
+            'staff.clearances',
+            compact('clearances', 'students')
+        );
     }
 
     public function update(Request $request, $id)
     {
+        // Validate request
         $request->validate([
             'status' => 'required|in:Pending,Approved,Rejected',
             'remarks' => 'nullable|string|max:500',
@@ -102,48 +134,82 @@ class StaffClearanceController extends Controller
 
         $actor = Auth::user();
 
+        // Find clearance
         $clearance = Clearance::findOrFail($id);
 
-        if ($actor->role !== 'admin') {
+        // ADMIN ACCESS
+        if ($actor->role === 'admin') {
+
+            // Admin can update any clearance
+
+        } else {
+
+            // STAFF ACCESS ONLY
             abort_unless($actor->role === 'staff', 403);
 
+            $staffDepartment = trim($actor->department ?? '');
+            $clearanceDepartment = trim($clearance->department ?? '');
+
+            // Check department authorization
             abort_unless(
-                $actor->department
-                && $clearance->department === $actor->department,
+                !empty($staffDepartment) &&
+                $clearanceDepartment === $staffDepartment,
                 403
             );
 
-            if ($actor->department === 'DEAN PROGRAM') {
-                $allowedPrograms = self::DEAM_SIGNATORY_GROUPS[
-                    $actor->signatory_group
-                ] ?? [];
+            // DEAN PROGRAM authorization
+            if ($staffDepartment === 'DEAN PROGRAM') {
 
+                $group = $actor->signatory_group;
+
+                $allowedPrograms =
+                    self::DEAM_SIGNATORY_GROUPS[$group] ?? [];
+
+                // Find student, including soft-deleted accounts
                 $student = User::withTrashed()
                     ->where('email', $clearance->student_id)
                     ->first();
 
+                // Verify student program
                 abort_unless(
-                    $student
-                    && in_array($student->program, $allowedPrograms, true),
+                    $student &&
+                    in_array(
+                        trim($student->program ?? ''),
+                        $allowedPrograms,
+                        true
+                    ),
                     403
                 );
             }
         }
 
+        // UPDATE APPROVAL DATE
         if ($request->status === 'Approved') {
-            if ($clearance->status !== 'Approved' || !$clearance->approved_at) {
+
+            if (
+                $clearance->status !== 'Approved' ||
+                !$clearance->approved_at
+            ) {
                 $clearance->approved_at = now();
             }
+
         } else {
+
+            // Reset approval date when Pending or Rejected
             $clearance->approved_at = null;
         }
 
+        // SAVE CHANGES
         $clearance->status = $request->status;
         $clearance->remarks = $request->remarks;
+
         $clearance->save();
 
         return redirect()
             ->route('staff.clearances')
-            ->with('success', 'Clearance status updated successfully.');
+            ->with(
+                'success',
+                'Clearance status updated successfully.'
+            );
     }
 }

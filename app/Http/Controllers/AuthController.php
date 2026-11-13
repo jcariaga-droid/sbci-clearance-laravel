@@ -7,9 +7,21 @@ use App\Models\Clearance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
+    private const STUDENT_PROGRAMS = [
+        'BEEd – GenEd',
+        'BSEd – Math',
+        'BSHM',
+        'BSCA',
+        'BSIT',
+        'BSTM',
+        'BSEntrep',
+        'BSCrim',
+    ];
+
     public function showLogin()
     {
         return view('auth.login');
@@ -23,14 +35,19 @@ class AuthController extends Controller
     // STUDENT REGISTRATION
     public function register(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
+            'program' => [
+                'required',
+                'string',
+                Rule::in(self::STUDENT_PROGRAMS),
+            ],
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         // ONLY SBCI EMAIL DOMAIN IS ALLOWED
-        $email = trim($request->email);
+        $email = trim($validated['email']);
 
         $emailDomain = strtolower(
             substr(strrchr($email, '@') ?: '', 1)
@@ -51,14 +68,19 @@ class AuthController extends Controller
             ])->withInput();
         }
 
-        // CREATE STUDENT ACCOUNT WITHOUT EMAIL VERIFICATION
+        // CREATE STUDENT ACCOUNT
         $user = User::create([
-            'name' => $request->name,
+            'name' => $validated['name'],
             'email' => $email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($validated['password']),
             'role' => 'student',
             'email_verified_at' => now(),
         ]);
+
+        // SAVE STUDENT PROGRAM
+        // Assign separately to avoid mass-assignment issues.
+        $user->program = $validated['program'];
+        $user->save();
 
         Auth::login($user);
 
