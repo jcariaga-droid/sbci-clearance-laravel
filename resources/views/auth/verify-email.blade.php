@@ -16,18 +16,28 @@
         we sent to your email address.
     </p>
 
+    {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
         <div style="background:#d1fae5; color:#065f46; padding:12px; border-radius:6px; margin-bottom:20px;">
             {{ session('success') }}
         </div>
     @endif
 
+    {{-- WARNING MESSAGE --}}
+    @if(session('warning'))
+        <div style="background:#fef3c7; color:#92400e; padding:12px; border-radius:6px; margin-bottom:20px;">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    {{-- ERROR MESSAGE --}}
     @if($errors->any())
         <div style="background:#fee2e2; color:#991b1b; padding:12px; border-radius:6px; margin-bottom:20px;">
             {{ $errors->first() }}
         </div>
     @endif
 
+    {{-- RESEND VERIFICATION EMAIL --}}
     <form method="POST" action="{{ route('verification.send') }}">
         @csrf
         <button type="submit" style="background:#203f91; color:white; padding:12px 20px; border:0; border-radius:6px; cursor:pointer;">
@@ -39,6 +49,7 @@
         Check your Spam or Junk folder if you cannot find the email.
     </p>
 
+    {{-- LOGOUT --}}
     <form method="POST" action="{{ route('logout') }}">
         @csrf
         <button type="submit" style="background:#6b7280; color:white; padding:10px 20px; border:0; border-radius:6px; cursor:pointer;">
