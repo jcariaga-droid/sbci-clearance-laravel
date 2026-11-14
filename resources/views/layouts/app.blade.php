@@ -193,6 +193,7 @@
 
             @elseif(auth()->user()->role === 'admin')
                 <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ route('admin.analytics') }}">Analytics Report</a>
                 <a href="{{ route('admin.users') }}">Manage Users</a>
                 <a href="{{ route('staff.clearances') }}">Manage Clearances</a>
             @endif

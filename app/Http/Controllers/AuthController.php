@@ -7,6 +7,7 @@ use App\Models\Clearance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
@@ -21,6 +22,24 @@ class AuthController extends Controller
         'BSEntrep',
         'BSCrim',
     ];
+
+    /**
+     * Record user login/logout activity.
+     */
+    private function recordActivity($user, string $event): void
+    {
+        $now = now();
+
+        DB::connection('mongodb')
+            ->table('user_activities')
+            ->insert([
+                'user_id' => (string) $user->getKey(),
+                'role' => $user->role,
+                'event_type' => $event,
+                'event_date' => $now->toDateString(),
+                'occurred_at' => $now->timestamp,
+            ]);
+    }
 
     public function showLogin()
     {
@@ -78,11 +97,13 @@ class AuthController extends Controller
         ]);
 
         // SAVE STUDENT PROGRAM
-        // Assign separately to avoid mass-assignment issues.
         $user->program = $validated['program'];
         $user->save();
 
         Auth::login($user);
+
+        // RECORD REGISTRATION LOGIN
+        $this->recordActivity($user, 'login');
 
         return redirect()->route('dashboard')
             ->with('success', 'Account created successfully!');
@@ -100,6 +121,9 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+
+            // RECORD LOGIN ACTIVITY
+            $this->recordActivity($user, 'login');
 
             // ADMIN
             if ($user->role === 'admin') {
@@ -123,6 +147,13 @@ class AuthController extends Controller
     // LOGOUT
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        // RECORD LOGOUT BEFORE ENDING SESSION
+        if ($user) {
+            $this->recordActivity($user, 'logout');
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();

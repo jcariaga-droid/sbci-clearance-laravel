@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClearanceController;
 use App\Http\Controllers\StaffClearanceController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminAnalyticsController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordController;
 
@@ -57,9 +58,15 @@ Route::middleware('auth')->group(function () {
 
     // ADMIN
     Route::middleware('role:admin')->group(function () {
+
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
             ->name('admin.dashboard');
 
+        // ADMIN ANALYTICS REPORT
+        Route::get('/admin/analytics', [AdminAnalyticsController::class, 'index'])
+            ->name('admin.analytics');
+
+        // MANAGE USERS
         Route::get('/admin/users', [AdminUserController::class, 'index'])
             ->name('admin.users');
 
